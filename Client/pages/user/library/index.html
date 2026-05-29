@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal Library — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Library</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900">Legal Library</h1><p class="text-sm text-gray-500">Browse and download legal reference books</p></div></div>
+      <div class="panel-content">
+        <!-- Search & Filters -->
+        <div class="card card-padded mb-6 animate-fadeInUp">
+          <div class="flex flex-wrap items-center gap-3">
+            <input type="text" id="searchInput" class="form-input flex-1 min-w-[200px]" placeholder="Search books..." oninput="debounceSearch()">
+            <select id="categoryFilter" class="form-input w-auto" onchange="loadBooks()">
+              <option value="">All Categories</option>
+              <option value="constitution">Constitution</option>
+              <option value="criminal">Criminal Law</option>
+              <option value="civil">Civil Law</option>
+              <option value="family">Family Law</option>
+              <option value="corporate">Corporate Law</option>
+              <option value="tax">Tax Law</option>
+              <option value="procedure">Procedure</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div id="pagination" class="flex items-center justify-between mt-4"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'legal-library');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    let currentPage = 1, searchTimeout;
+    function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(() => { currentPage = 1; loadBooks(); }, 400); }
+
+    const categoryColors = { constitution: 'bg-blue-100 text-blue-800', criminal: 'bg-red-100 text-red-800', civil: 'bg-green-100 text-green-800', family: 'bg-pink-100 text-pink-800', corporate: 'bg-purple-100 text-purple-800', tax: 'bg-amber-100 text-amber-800', procedure: 'bg-cyan-100 text-cyan-800', other: 'bg-gray-100 text-gray-800' };
+
+    async function loadBooks() {
+      const grid = document.getElementById('booksGrid');
+      grid.innerHTML = Loader.show();
+      try {
+        let url = `/library?page=${currentPage}&limit=12`;
+        const search = document.getElementById('searchInput').value;
+        const category = document.getElementById('categoryFilter').value;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (category) url += `&category=${category}`;
+
+        const res = await api.get(url);
+        const { data: books, pagination } = res;
+
+        if (!books || !books.length) {
+          grid.innerHTML = '<div class="col-span-full empty-state"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg><h3>No books found</h3><p>Try a different search or category</p></div>';
+          return;
+        }
+
+        grid.innerHTML = books.map(b => `
+          <div class="card card-hover card-padded animate-fadeInUp">
+            <div class="flex items-start gap-3">
+              <div class="w-14 h-18 rounded-lg bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center flex-shrink-0">
+                ${b.coverImage ? `<img src="${b.coverImage}" class="w-full h-full object-cover rounded-lg">` : '<svg class="w-7 h-7 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/></svg>'}
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-semibold text-gray-900 truncate">${b.title}</h3>
+                ${b.author ? `<p class="text-xs text-gray-500 mt-0.5">by ${b.author}</p>` : ''}
+                <div class="flex items-center gap-2 mt-2">
+                  <span class="badge ${categoryColors[b.category] || 'bg-gray-100 text-gray-800'} text-[10px]">${b.category}</span>
+                  <span class="text-[10px] text-gray-400">${b.downloads || 0} downloads</span>
+                </div>
+              </div>
+            </div>
+            ${b.description ? `<p class="text-xs text-gray-500 mt-3 line-clamp-2">${b.description}</p>` : ''}
+            <button onclick="downloadBook('${b._id}')" class="btn btn-secondary btn-sm w-full mt-3">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Download
+            </button>
+          </div>`).join('');
+      } catch (err) { grid.innerHTML = '<p class="text-center text-red-500">Failed to load books</p>'; }
+    }
+
+    async function downloadBook(id) {
+      try {
+        const res = await api.get(`/library/${id}/download`);
+        if (res.fileUrl) window.open(res.fileUrl, '_blank');
+        Toast.success('Download started');
+      } catch (err) { Toast.error(err.message); }
+    }
+
+    loadBooks();
+  </script>
+</body>
+</html>

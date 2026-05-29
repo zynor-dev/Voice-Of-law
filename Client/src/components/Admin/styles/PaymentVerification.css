@@ -1,0 +1,390 @@
+/* src/components/Admin/styles/PaymentVerification.css */
+
+.payment-verification-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.verification-header {
+  margin-bottom: 2rem;
+}
+
+.verification-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+}
+
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.stat-box svg {
+  font-size: 2.5rem;
+}
+
+.stat-box.pending {
+  border-left: 4px solid #ffa500;
+}
+
+.stat-box.pending svg {
+  color: #ffa500;
+}
+
+.stat-box.verified {
+  border-left: 4px solid #4caf50;
+}
+
+.stat-box.verified svg {
+  color: #4caf50;
+}
+
+.stat-box.failed {
+  border-left: 4px solid #f44336;
+}
+
+.stat-box.failed svg {
+  color: #f44336;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+}
+
+/* Controls */
+.verification-controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-box svg {
+  position: absolute;
+  left: 1rem;
+  color: #999;
+  font-size: 1.2rem;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.filter-tabs button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.filter-tabs button:hover {
+  background: #f5f5f5;
+}
+
+.filter-tabs button.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+/* Payments Grid */
+.payments-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.payment-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s;
+}
+
+.payment-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.payment-card.pending {
+  border-color: #ffa500;
+}
+
+.payment-card.verified {
+  border-color: #4caf50;
+}
+
+.payment-card.failed {
+  border-color: #f44336;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.payment-method {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.method-icon {
+  font-size: 1.5rem;
+}
+
+.method-icon.bank {
+  color: #2196f3;
+}
+
+.method-icon.easypaisa {
+  color: #00a651;
+}
+
+.method-icon.jazzcash {
+  color: #e31e24;
+}
+
+.method-icon.card {
+  color: #667eea;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.verified {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.failed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Payment Details */
+.payment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detail-row .label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 600;
+}
+
+.detail-row .value {
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  font-weight: 600;
+  text-align: right;
+  max-width: 60%;
+  word-break: break-word;
+}
+
+.detail-row .value.amount {
+  font-size: 1.3rem;
+  color: #667eea;
+  font-weight: 800;
+}
+
+.detail-row .value.transaction-id {
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+/* Payment Actions */
+.payment-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.approve-btn,
+.reject-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.approve-btn {
+  background: #4caf50;
+  color: white;
+}
+
+.approve-btn:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.reject-btn {
+  background: #f44336;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #da190b;
+  transform: translateY(-2px);
+}
+
+/* Loading and Empty States */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: #999;
+}
+
+.spinner-large {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e0e0e0;
+  border-top-color: #667eea;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .payment-verification-container {
+    padding: 1rem;
+  }
+
+  .verification-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .verification-controls {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: auto;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+  }
+
+  .filter-tabs button {
+    white-space: nowrap;
+  }
+
+  .payments-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-actions {
+    flex-direction: column;
+  }
+}

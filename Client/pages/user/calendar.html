@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Calendar</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex">
+        <div><h1 class="text-lg font-bold text-gray-900">Case Calendar</h1><p class="text-sm text-gray-500">Track hearings, meetings, and deadlines</p></div>
+        <div class="flex items-center gap-2">
+          <button onclick="syncHearings()" class="btn btn-secondary btn-sm">🔄 Sync Cases</button>
+          <button onclick="showCreateEvent()" class="btn btn-primary btn-sm">+ New Event</button>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Calendar Grid -->
+          <div class="lg:col-span-2 card card-padded animate-fadeInUp">
+            <div class="flex items-center justify-between mb-4">
+              <button onclick="changeMonth(-1)" class="btn btn-secondary btn-sm">←</button>
+              <h2 class="text-base font-bold text-gray-900" id="monthDisplay"></h2>
+              <button onclick="changeMonth(1)" class="btn btn-secondary btn-sm">→</button>
+            </div>
+            <div class="grid grid-cols-7 gap-px bg-gray-200 rounded-xl overflow-hidden" id="calendarGrid"></div>
+          </div>
+
+          <!-- Events Sidebar -->
+          <div class="space-y-4">
+            <div class="card card-padded animate-fadeInUp" style="animation-delay:.1s">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">📅 Today's Events</h3>
+              <div id="todayEvents"></div>
+            </div>
+            <div class="card card-padded animate-fadeInUp" style="animation-delay:.15s">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">🔜 Upcoming</h3>
+              <div id="upcomingEvents"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'calendar');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    let currentDate = new Date();
+    let events = [];
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const typeColors = { hearing: '#ef4444', meeting: '#3b82f6', deadline: '#f59e0b', reminder: '#8b5cf6', other: '#6b7280' };
+
+    function changeMonth(delta) { currentDate.setMonth(currentDate.getMonth() + delta); renderCalendar(); loadEvents(); }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear(), month = currentDate.getMonth();
+      document.getElementById('monthDisplay').textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date(); today.setHours(0,0,0,0);
+
+      let html = days.map(d => `<div class="bg-gray-50 text-center text-xs font-semibold text-gray-500 py-2">${d}</div>`).join('');
+
+      for (let i = 0; i < firstDay; i++) html += '<div class="bg-white p-2 min-h-[80px]"></div>';
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(year, month, d);
+        const isToday = date.getTime() === today.getTime();
+        const dayEvents = events.filter(e => new Date(e.date).toDateString() === date.toDateString());
+
+        html += `<div class="bg-white p-2 min-h-[80px] ${isToday ? 'ring-2 ring-indigo-500 ring-inset' : ''} hover:bg-gray-50 cursor-pointer" onclick="showDayEvents('${date.toISOString()}')">
+          <span class="text-xs font-medium ${isToday ? 'bg-indigo-500 text-white w-6 h-6 rounded-full inline-flex items-center justify-center' : 'text-gray-700'}">${d}</span>
+          ${dayEvents.slice(0,2).map(e => `<div class="mt-1 text-[10px] px-1 py-0.5 rounded truncate" style="background:${(typeColors[e.eventType]||'#6b7280')}20; color:${typeColors[e.eventType]||'#6b7280'}">${e.title}</div>`).join('')}
+          ${dayEvents.length > 2 ? `<div class="text-[10px] text-gray-400 mt-0.5">+${dayEvents.length-2} more</div>` : ''}
+        </div>`;
+      }
+      document.getElementById('calendarGrid').innerHTML = html;
+    }
+
+    async function loadEvents() {
+      try {
+        const year = currentDate.getFullYear(), month = currentDate.getMonth();
+        const start = new Date(year, month, 1).toISOString();
+        const end = new Date(year, month + 1, 0).toISOString();
+        const res = await api.get(`/calendar?start=${start}&end=${end}`);
+        events = res.events || [];
+        renderCalendar();
+      } catch (e) { /* silent */ }
+    }
+
+    async function loadTodayEvents() {
+      try { const res = await api.get('/calendar/today'); renderEventList('todayEvents', res.events); } catch(e) { document.getElementById('todayEvents').innerHTML = '<p class="text-xs text-gray-400">No events today</p>'; }
+    }
+
+    async function loadUpcomingEvents() {
+      try { const res = await api.get('/calendar/upcoming'); renderEventList('upcomingEvents', res.events); } catch(e) { document.getElementById('upcomingEvents').innerHTML = '<p class="text-xs text-gray-400">No upcoming events</p>'; }
+    }
+
+    function renderEventList(containerId, eventList) {
+      const el = document.getElementById(containerId);
+      if (!eventList || !eventList.length) { el.innerHTML = '<p class="text-xs text-gray-400">No events</p>'; return; }
+      el.innerHTML = eventList.map(e => `
+        <div class="flex items-center gap-2 py-2 border-b border-gray-50 last:border-0">
+          <div class="w-2 h-2 rounded-full" style="background:${typeColors[e.eventType]||'#6b7280'}"></div>
+          <div class="flex-1 min-w-0"><p class="text-xs font-medium text-gray-900 truncate">${e.title}</p><p class="text-[10px] text-gray-400">${new Date(e.date).toLocaleDateString()}</p></div>
+          <button onclick="deleteEvent('${e._id}')" class="text-red-400 hover:text-red-600 text-xs">✕</button>
+        </div>`).join('');
+    }
+
+    function showCreateEvent() {
+      Modal.show({ title: 'Create Event', size: 'md', content: `
+        <form id="eventForm">
+          <div class="form-group"><label class="form-label">Title *</label><input name="title" class="form-input" required></div>
+          <div class="form-group"><label class="form-label">Date *</label><input name="date" type="date" class="form-input" required></div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="form-group"><label class="form-label">Start Time</label><input name="startTime" type="time" class="form-input"></div>
+            <div class="form-group"><label class="form-label">End Time</label><input name="endTime" type="time" class="form-input"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Type</label><select name="eventType" class="form-input"><option value="hearing">Hearing</option><option value="meeting">Meeting</option><option value="deadline">Deadline</option><option value="reminder">Reminder</option><option value="other">Other</option></select></div>
+          <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-input" rows="2"></textarea></div>
+          <button type="submit" class="btn btn-primary w-full">Create Event</button>
+        </form>`, actions: [] });
+
+      setTimeout(() => {
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+          e.preventDefault(); const fd = new FormData(e.target); const data = Object.fromEntries(fd);
+          try { await api.post('/calendar', data); Toast.success('Event created!'); document.getElementById('modal-overlay')?.remove(); document.body.style.overflow=''; loadEvents(); loadTodayEvents(); loadUpcomingEvents(); } catch(err) { Toast.error(err.message); }
+        });
+      }, 100);
+    }
+
+    async function syncHearings() { try { const res = await api.post('/calendar/sync-cases'); Toast.success(res.message); loadEvents(); } catch(e) { Toast.error(e.message); } }
+    async function deleteEvent(id) { try { await api.delete(`/calendar/${id}`); Toast.success('Event deleted'); loadEvents(); loadTodayEvents(); loadUpcomingEvents(); } catch(e) { Toast.error(e.message); } }
+
+    renderCalendar(); loadEvents(); loadTodayEvents(); loadUpcomingEvents();
+  </script>
+</body>
+</html>

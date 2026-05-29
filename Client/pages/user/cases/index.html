@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Cases — Voice of Law</title>
+  <meta name="description" content="Manage your legal cases — Voice of Law">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden">
+    <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <span class="text-sm font-bold text-gray-900">My Cases</span>
+    <div></div>
+  </div>
+
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex">
+        <div>
+          <h1 class="text-lg font-bold text-gray-900">Case Management</h1>
+          <p class="text-sm text-gray-500">Manage all your legal cases in one place</p>
+        </div>
+        <a href="/cases/create" class="btn btn-primary">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+          New Case
+        </a>
+      </div>
+
+      <div class="panel-content">
+        <!-- Filters -->
+        <div class="card card-padded mb-6 animate-fadeInUp">
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex-1 min-w-[200px]">
+              <input type="text" id="searchInput" placeholder="Search cases..." class="form-input" oninput="debounceSearch()">
+            </div>
+            <select id="statusFilter" class="form-input w-auto" onchange="loadCases()">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="hearing">In Hearing</option>
+              <option value="reserved">Reserved</option>
+              <option value="disposed">Disposed</option>
+              <option value="appealed">Appealed</option>
+            </select>
+            <select id="typeFilter" class="form-input w-auto" onchange="loadCases()">
+              <option value="">All Types</option>
+              <option value="civil">Civil</option>
+              <option value="criminal">Criminal</option>
+              <option value="family">Family</option>
+              <option value="corporate">Corporate</option>
+              <option value="constitutional">Constitutional</option>
+              <option value="tax">Tax</option>
+            </select>
+            <select id="sortFilter" class="form-input w-auto" onchange="loadCases()">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="hearing">Next Hearing</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Mobile: New Case Button -->
+        <div class="md:hidden mb-4">
+          <a href="/cases/create" class="btn btn-primary w-full">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+            Create New Case
+          </a>
+        </div>
+
+        <!-- Cases List -->
+        <div id="casesContainer"></div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex items-center justify-between mt-4"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+
+  <script>
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+    Sidebar.render('sidebar', 'my-cases');
+
+    let currentPage = 1;
+    let searchTimeout;
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => { currentPage = 1; loadCases(); }, 400);
+    }
+
+    const statusColors = { pending: 'warning', hearing: 'info', reserved: 'purple', disposed: 'success', appealed: 'danger' };
+    const priorityEmoji = { low: '🟢', medium: '🟡', high: '🔴', urgent: '🚨' };
+
+    async function loadCases() {
+      const container = document.getElementById('casesContainer');
+      container.innerHTML = Loader.show();
+
+      try {
+        const search = document.getElementById('searchInput').value;
+        const status = document.getElementById('statusFilter').value;
+        const caseType = document.getElementById('typeFilter').value;
+        const sort = document.getElementById('sortFilter').value;
+
+        let url = `/cases?page=${currentPage}&limit=10`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (status) url += `&status=${status}`;
+        if (caseType) url += `&caseType=${caseType}`;
+        if (sort) url += `&sort=${sort}`;
+
+        const res = await api.get(url);
+        const { data: cases, pagination } = res;
+
+        if (!cases || cases.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <h3>No cases found</h3>
+              <p>Create your first case to get started</p>
+            </div>`;
+          document.getElementById('pagination').innerHTML = '';
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="space-y-3">
+            ${cases.map(c => `
+              <div class="card card-hover card-padded cursor-pointer animate-fadeInUp" onclick="window.location.href='/cases/view?id=${c._id}'">
+                <div class="flex items-start justify-between flex-wrap gap-3">
+                  <div class="flex-1 min-w-[200px]">
+                    <div class="flex items-center gap-2">
+                      <h3 class="text-sm font-semibold text-gray-900">${c.title}</h3>
+                      <span class="badge badge-${statusColors[c.status] || 'info'}">${c.status}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">${c.caseNo} • ${c.caseType} • ${c.court?.name || ''}</p>
+                    <p class="text-xs text-gray-400 mt-1">Client: ${c.client?.name || 'N/A'} ${c.petitioner ? `| ${c.petitioner} vs ${c.respondent}` : ''}</p>
+                  </div>
+                  <div class="text-right text-xs">
+                    <p class="text-gray-400">${priorityEmoji[c.priority] || ''} ${c.priority || 'medium'}</p>
+                    ${c.nextHearing ? `<p class="text-indigo-600 font-medium mt-1">Next: ${new Date(c.nextHearing).toLocaleDateString()}</p>` : ''}
+                    <div class="flex items-center gap-2 mt-2">
+                      <a href="/cases/edit?id=${c._id}" class="text-indigo-600 hover:text-indigo-700" onclick="event.stopPropagation()">Edit</a>
+                      <button class="text-red-500 hover:text-red-700" onclick="event.stopPropagation(); deleteCase('${c._id}', '${c.title.replace(/'/g, "\\'")}')">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+
+        // Pagination
+        renderPagination(pagination);
+      } catch (error) {
+        container.innerHTML = `<div class="empty-state"><h3>Error loading cases</h3><p>${error.message}</p></div>`;
+      }
+    }
+
+    function renderPagination(p) {
+      if (!p || p.pages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+      document.getElementById('pagination').innerHTML = `
+        <p class="text-xs text-gray-500">Showing page ${p.page} of ${p.pages} (${p.total} total)</p>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-secondary btn-sm" ${p.page <= 1 ? 'disabled' : ''} onclick="goToPage(${p.page - 1})">← Prev</button>
+          <button class="btn btn-secondary btn-sm" ${!p.hasMore ? 'disabled' : ''} onclick="goToPage(${p.page + 1})">Next →</button>
+        </div>`;
+    }
+
+    function goToPage(page) { currentPage = page; loadCases(); }
+
+    async function deleteCase(id, title) {
+      Modal.confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`, async () => {
+        try {
+          await api.delete(`/cases/${id}`);
+          Toast.success('Case deleted successfully');
+          loadCases();
+        } catch (error) { Toast.error(error.message || 'Failed to delete case'); }
+      });
+    }
+
+    loadCases();
+  </script>
+</body>
+</html>

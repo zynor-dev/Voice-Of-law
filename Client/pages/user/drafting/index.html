@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legal Drafting — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Drafting</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900">Legal Drafting</h1><p class="text-sm text-gray-500">Create and manage legal documents</p></div><a href="/drafting/create" class="btn btn-primary btn-sm">+ New Draft</a></div>
+      <div class="panel-content">
+        <!-- Templates Section -->
+        <div class="mb-6 animate-fadeInUp">
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">📄 Quick Templates</h2>
+          <div id="templates" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+        </div>
+
+        <!-- Drafts List -->
+        <div class="card animate-fadeInUp" style="animation-delay:.1s">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <h2 class="text-sm font-semibold text-gray-900">My Drafts</h2>
+            <select id="statusFilter" class="form-input w-auto text-xs" onchange="loadDrafts()">
+              <option value="">All</option><option value="draft">Draft</option><option value="completed">Completed</option><option value="exported">Exported</option>
+            </select>
+          </div>
+          <div id="draftsList" class="p-4"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'legal-drafting');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    const draftTypeIcons = { petition: '📜', affidavit: '✍️', bail: '🔓', appeal: '⚖️', contract: '📑', notice: '📨', other: '📄' };
+    const statusBadge = { draft: 'badge-warning', completed: 'badge-success', exported: 'badge-info' };
+
+    async function loadTemplates() {
+      try {
+        const res = await api.get('/drafts/templates');
+        const templates = res.templates || [];
+        document.getElementById('templates').innerHTML = templates.length ? templates.map(t => `
+          <div class="card card-hover card-padded text-center cursor-pointer" onclick="window.location.href='/drafting/create?template=${t._id}'">
+            <span class="text-2xl mb-2 block">${draftTypeIcons[t.category] || '📄'}</span>
+            <h3 class="text-xs font-semibold text-gray-900">${t.name}</h3>
+            <p class="text-[10px] text-gray-400 mt-1">${t.usageCount || 0} uses</p>
+          </div>`).join('') : '<p class="col-span-full text-xs text-gray-400 text-center py-4">No templates available yet</p>';
+      } catch(e) {}
+    }
+
+    async function loadDrafts() {
+      const container = document.getElementById('draftsList');
+      container.innerHTML = Loader.show();
+      try {
+        let url = '/drafts?limit=20';
+        const status = document.getElementById('statusFilter').value;
+        if (status) url += `&status=${status}`;
+        const res = await api.get(url);
+        const drafts = res.data || [];
+
+        if (!drafts.length) { container.innerHTML = '<div class="empty-state py-8"><h3>No drafts yet</h3><p>Create your first legal draft</p></div>'; return; }
+
+        container.innerHTML = drafts.map(d => `
+          <div class="flex items-center justify-between py-3 border-b border-gray-50 last:border-0 hover:bg-gray-50 px-2 rounded-lg transition cursor-pointer" onclick="viewDraft('${d._id}')">
+            <div class="flex items-center gap-3">
+              <span class="text-lg">${draftTypeIcons[d.draftType] || '📄'}</span>
+              <div>
+                <h3 class="text-sm font-medium text-gray-900">${d.title}</h3>
+                <p class="text-xs text-gray-400">${d.draftType} • ${new Date(d.updatedAt).toLocaleDateString()}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="badge ${statusBadge[d.status] || 'badge-info'}">${d.status}</span>
+              <button onclick="event.stopPropagation(); exportDraft('${d._id}', 'pdf')" class="text-xs text-indigo-600 hover:text-indigo-700" title="Export PDF">📥</button>
+              <button onclick="event.stopPropagation(); deleteDraft('${d._id}')" class="text-xs text-red-400 hover:text-red-600">✕</button>
+            </div>
+          </div>`).join('');
+      } catch(err) { container.innerHTML = '<p class="text-center text-red-500 py-4">Failed to load drafts</p>'; }
+    }
+
+    function viewDraft(id) { window.location.href = `/drafting/view?id=${id}`; }
+
+    async function exportDraft(id, format) {
+      try {
+        const res = await api.post(`/drafts/${id}/export`, { format });
+        if (res.fileUrl) window.open(res.fileUrl, '_blank');
+        Toast.success(`Exported as ${format.toUpperCase()}`);
+      } catch(err) { Toast.error(err.message); }
+    }
+
+    async function deleteDraft(id) {
+      Modal.confirm('Delete this draft?', async () => {
+        try { await api.delete(`/drafts/${id}`); Toast.success('Deleted'); loadDrafts(); } catch(e) { Toast.error(e.message); }
+      });
+    }
+
+    loadTemplates();
+    loadDrafts();
+  </script>
+</body>
+</html>

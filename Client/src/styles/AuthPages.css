@@ -1,0 +1,263 @@
+/* src/styles/AuthPages.css */
+/* Auth Pages ke liye main styles */
+html, body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  margin: 0;
+  padding: 0;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: #f0f2f5;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+  padding: 20px; /* Responsive padding */
+}
+
+/* For mobile devices, align items vertically with a gap */
+@media (max-width: 768px) {
+  .auth-container {
+    flex-direction: column;
+    gap: 20px;
+   
+  }
+  
+}
+
+/* Login and subscription card common styles */
+.auth-card, .subscription-content {
+  position: relative;
+  z-index: 2;
+  background-color: #fff;
+  padding: 2.5rem 3rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Login page specific styles */
+.auth-form .form-group {
+    margin-bottom: 1.5rem; /* Email aur password fields ke darmiyan gap */
+}
+
+.auth-form .form-group:last-of-type {
+    margin-bottom: 1rem;
+}
+
+.auth-logo {
+  width: 160px;
+  height: 160px;
+  display: block;
+  margin: 0 auto ; /* Logo ko center karne ke liye */
+}
+
+.auth-title {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-input-wrapper input {
+  padding-right: 2.5rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #aaa;
+}
+
+/* Subscription page specific styles */
+.subscription-content {
+  text-align: left;
+  max-width: 700px; /* Subscription page ke liye zyada width */
+  overflow-y: auto;
+  max-height: 90vh;
+  padding-right: 1rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.subscription-content::-webkit-scrollbar {
+  display: none;
+}
+
+.section-heading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.plan-options {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.plan-card {
+  flex: 1;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 1.5rem 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s ease;
+}
+
+.plan-card.active-plan {
+  border-color: red;
+  box-shadow: 0 0 0 2px red;
+}
+
+.plan-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+}
+
+.plan-card p {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.plan-card span {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.subscription-form .form-section {
+  background-color: #fff;
+  padding: 2.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.subscription-form .info-text {
+  font-size: 0.8rem;
+  color: #999;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.subscription-form .form-group-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.subscription-form .form-group-row .form-group {
+  flex: 1;
+}
+
+.subscription-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.subscription-form label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #555;
+}
+
+.subscription-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.subscription-form input:focus {
+  outline: none;
+  border-color: #aaa;
+  box-shadow: 0 0 0 1px #aaa;
+}
+
+.credit-card-logos {
+  text-align: right;
+  height: 20px;
+  margin-bottom: 1rem;
+}
+
+.auth-submit-btn {
+  background-color: #000;
+  color: #fff;
+  padding: 0.8rem 2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+
+.auth-submit-btn:hover {
+  background-color: #333;
+}
+
+.auth-switch-text {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.auth-switch-text a {
+  color: #000;
+  font-weight: bold;
+}
+
+/* Subscription page ke liye additional responsive styles */
+@media (max-width: 600px) {
+  .plan-options {
+    flex-direction: column; /* Plans ko vertical stack karo */
+    gap: 1rem;
+  }
+
+  .auth-card, .subscription-content {
+    padding: 1.5rem; /* Padding kam karo chhote screens ke liye */
+  }
+
+  .subscription-form .form-group-row {
+    flex-direction: column; /* Input groups ko vertical stack karo */
+    gap: 0;
+  }
+
+  .subscription-form .form-group {
+    margin-bottom: 1rem; /* Har input ke beech gap */
+  }
+   .auth-container {
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+  }
+  .auth-logo {
+  width: 55% !important;
+  height: 160px;
+  display: block;
+  margin: 0 auto ; /* Logo ko center karne ke liye */
+}
+}

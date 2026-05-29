@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Profile</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900">My Profile</h1><p class="text-sm text-gray-500">Manage your personal information</p></div></div>
+      <div class="panel-content">
+        <!-- Profile Header Card -->
+        <div class="card mb-6 animate-fadeInUp">
+          <div class="h-24 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl"></div>
+          <div class="px-6 pb-6" style="margin-top:-40px">
+            <div class="flex items-end gap-4 flex-wrap">
+              <div class="relative">
+                <div id="profilePicContainer" class="w-20 h-20 rounded-2xl border-4 border-white shadow-lg overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold"></div>
+                <label for="profilePicInput" class="absolute -bottom-1 -right-1 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center cursor-pointer hover:bg-gray-50 transition">
+                  <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </label>
+                <input type="file" id="profilePicInput" class="hidden" accept="image/*" onchange="uploadProfilePic(this)">
+              </div>
+              <div class="flex-1 pt-10">
+                <h2 class="text-xl font-bold text-gray-900" id="displayName"></h2>
+                <p class="text-sm text-gray-500" id="displayEmail"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="card card-padded mb-6 animate-fadeInUp" style="animation-delay:.1s">
+          <h3 class="text-sm font-semibold text-gray-900 mb-4">Personal Information</h3>
+          <form id="profileForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">Full Name</label><input name="fullName" class="form-input" id="fullNameInput"></div>
+              <div class="form-group"><label class="form-label">City</label><input name="city" class="form-input" id="cityInput"></div>
+              <div class="form-group"><label class="form-label">Court Name</label><input name="courtName" class="form-input" id="courtNameInput"></div>
+              <div class="form-group md:col-span-2"><label class="form-label">Bio</label><textarea name="bio" class="form-input" rows="3" id="bioInput" placeholder="Tell us about yourself..."></textarea></div>
+            </div>
+            <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary">Save Changes</button></div>
+          </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card card-padded animate-fadeInUp" style="animation-delay:.15s">
+          <h3 class="text-sm font-semibold text-gray-900 mb-4">Change Password</h3>
+          <form id="passwordForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">Current Password</label><input name="currentPassword" type="password" class="form-input" required></div>
+              <div class="form-group"><label class="form-label">New Password</label><input name="newPassword" type="password" class="form-input" required minlength="6"></div>
+            </div>
+            <div class="flex justify-end mt-4"><button type="submit" class="btn btn-primary">Update Password</button></div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', '');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    const user = Auth.getUser();
+    function renderProfile() {
+      const initial = user?.fullName?.charAt(0)?.toUpperCase() || 'U';
+      document.getElementById('profilePicContainer').innerHTML = user?.profilePicture
+        ? `<img src="${user.profilePicture}" class="w-full h-full object-cover">`
+        : initial;
+      document.getElementById('displayName').textContent = user?.fullName || '';
+      document.getElementById('displayEmail').textContent = user?.email || '';
+      document.getElementById('fullNameInput').value = user?.fullName || '';
+      document.getElementById('cityInput').value = user?.city || '';
+      document.getElementById('courtNameInput').value = user?.courtName || '';
+      document.getElementById('bioInput').value = user?.bio || '';
+    }
+    renderProfile();
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await api.put('/users/profile', { fullName: e.target.fullName.value, city: e.target.city.value, courtName: e.target.courtName.value, bio: e.target.bio.value });
+        Auth.setAuth(Auth.getToken(), res.user);
+        Toast.success('Profile updated!');
+      } catch (err) { Toast.error(err.message); }
+    });
+
+    document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api.patch('/users/password', { currentPassword: e.target.currentPassword.value, newPassword: e.target.newPassword.value });
+        Toast.success('Password updated!');
+        e.target.reset();
+      } catch (err) { Toast.error(err.message); }
+    });
+
+    async function uploadProfilePic(input) {
+      if (!input.files[0]) return;
+      const fd = new FormData(); fd.append('profilePicture', input.files[0]);
+      try {
+        const res = await api.upload('/users/profile-picture', fd);
+        user.profilePicture = res.profilePicture;
+        Auth.setAuth(Auth.getToken(), res.user);
+        renderProfile();
+        Toast.success('Profile picture updated!');
+      } catch (err) { Toast.error(err.message); }
+    }
+  </script>
+</body>
+</html>

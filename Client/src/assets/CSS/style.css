@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+*{
+    font-family: "Roboto", serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    text-decoration: none;
+    border: none;
+    text-transform: capitalize;
+    transition: 0.2s linear;
+    
+}
+ html{
+    font-size: 62.5%;
+    overflow-x: hidden;
+    scroll-padding-top: 9rem;
+    scroll-behavior: smooth;
+ }
+
+ html::-webkit-scrollbar{
+    width: 0.8rem;
+ }
+ html::-webkit-scrollbar-track{
+    background: transparent;
+ }
+html::-webkit-scrollbar-thumb{
+    background: white;
+    border-radius: 5rem;
+}
+body{
+    background: #010103;
+    overflow-x: hidden;
+}
+section{
+    padding: 2rem 7%;
+}
+.heading{
+    text-align: center;
+    color: white;
+}
+.header{
+    background: #010103;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 7%;
+    border-bottom: 0.2rem solid #ffc107;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.header .logo img{
+    max-width: 75px;
+}
+.header .navbar a{
+    margin: 0 1rem;
+    font-size: 1.6rem;
+    color: #fff;
+}
+
+.header .navbar a:hover{
+    color: #ffc107;
+    border-bottom: 0.1rem solid #ffc107;
+    padding-bottom: 0.5rem;
+}
+.header .icons div{
+    color: #fff;
+    cursor: pointer;
+    font-size: 2.5rem;
+    margin-left: 2rem;
+}
+.header .icons div:hover{
+    color: #ffc107;
+}

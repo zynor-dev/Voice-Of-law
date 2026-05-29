@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Case Details — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Case Details</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900" id="pageTitle">Case Details</h1><p class="text-sm text-gray-500" id="pageSubtitle"></p></div><div class="flex gap-2"><a href="/cases" class="btn btn-secondary btn-sm">← Back</a><a id="editBtn" href="#" class="btn btn-primary btn-sm">Edit</a></div></div>
+      <div class="panel-content" id="caseContent"></div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'my-cases');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    const caseId = new URLSearchParams(window.location.search).get('id');
+    if (!caseId) { window.location.href = '/cases'; throw new Error(); }
+    document.getElementById('editBtn').href = `/cases/edit?id=${caseId}`;
+
+    const statusColors = { pending: 'badge-warning', hearing: 'badge-info', reserved: 'badge-purple', disposed: 'badge-success', appealed: 'badge-danger' };
+
+    async function loadCase() {
+      try {
+        const res = await api.get(`/cases/${caseId}`);
+        const c = res.case;
+        document.getElementById('pageTitle').textContent = c.title;
+        document.getElementById('pageSubtitle').textContent = `${c.caseNo} • ${c.caseType}`;
+
+        document.getElementById('caseContent').innerHTML = `
+          <!-- Status & Priority -->
+          <div class="flex flex-wrap items-center gap-2 mb-6 animate-fadeInUp">
+            <span class="badge ${statusColors[c.status]||'badge-info'} text-sm px-3 py-1">${c.status.toUpperCase()}</span>
+            <span class="badge badge-purple text-sm px-3 py-1">${c.priority} priority</span>
+            <span class="badge bg-gray-100 text-gray-700 text-sm px-3 py-1">${c.caseType}</span>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Basic Info -->
+            <div class="card card-padded animate-fadeInUp">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">📋 Case Information</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Case No:</span><span class="font-medium">${c.caseNo}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Year:</span><span class="font-medium">${c.caseYear}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Filing Date:</span><span class="font-medium">${c.filingDate ? new Date(c.filingDate).toLocaleDateString() : 'N/A'}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Next Hearing:</span><span class="font-medium text-indigo-600">${c.nextHearing ? new Date(c.nextHearing).toLocaleDateString() : 'Not scheduled'}</span></div>
+              </div>
+            </div>
+
+            <!-- Client Info -->
+            <div class="card card-padded animate-fadeInUp" style="animation-delay:.05s">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">👤 Client</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Name:</span><span class="font-medium">${c.client?.name||'N/A'}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Contact:</span><span class="font-medium">${c.client?.contact||'N/A'}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Email:</span><span class="font-medium">${c.client?.email||'N/A'}</span></div>
+              </div>
+            </div>
+
+            <!-- Parties -->
+            <div class="card card-padded animate-fadeInUp" style="animation-delay:.1s">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">⚖️ Parties</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Petitioner:</span><span class="font-medium">${c.petitioner}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Respondent:</span><span class="font-medium">${c.respondent}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">On Behalf Of:</span><span class="font-medium capitalize">${c.onBehalfOf}</span></div>
+              </div>
+            </div>
+
+            <!-- Court -->
+            <div class="card card-padded animate-fadeInUp" style="animation-delay:.15s">
+              <h3 class="text-sm font-semibold text-gray-900 mb-3">🏛 Court Details</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-gray-500">Court:</span><span class="font-medium">${c.court?.name||'N/A'}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Location:</span><span class="font-medium">${c.court?.location||'N/A'}</span></div>
+                <div class="flex justify-between"><span class="text-gray-500">Judge:</span><span class="font-medium">${c.court?.judge||'N/A'}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          ${c.description ? `<div class="card card-padded mt-6 animate-fadeInUp" style="animation-delay:.2s"><h3 class="text-sm font-semibold text-gray-900 mb-3">📝 Description</h3><p class="text-sm text-gray-600 whitespace-pre-wrap">${c.description}</p></div>` : ''}
+
+          <!-- Relevant Laws -->
+          ${c.relevantLaws?.length ? `<div class="card card-padded mt-6 animate-fadeInUp" style="animation-delay:.25s"><h3 class="text-sm font-semibold text-gray-900 mb-3">📚 Relevant Laws</h3><div class="flex flex-wrap gap-2">${c.relevantLaws.map(l => `<span class="badge badge-info">${l}</span>`).join('')}</div></div>` : ''}
+
+          <!-- Notes -->
+          <div class="card card-padded mt-6 animate-fadeInUp" style="animation-delay:.3s">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-gray-900">📌 Notes</h3>
+              <button onclick="addNote()" class="btn btn-secondary btn-sm text-xs">+ Add Note</button>
+            </div>
+            <div id="notesContainer">
+              ${(c.notes||[]).map(n => `
+                <div class="bg-gray-50 rounded-lg p-3 mb-2 text-sm text-gray-700">
+                  <p>${n.content}</p>
+                  <div class="flex items-center justify-between mt-2">
+                    <span class="text-[10px] text-gray-400">${new Date(n.createdAt).toLocaleString()}</span>
+                    <button onclick="deleteNote('${n._id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
+                  </div>
+                </div>`).join('') || '<p class="text-xs text-gray-400">No notes yet</p>'}
+            </div>
+          </div>
+
+          <!-- Evidence -->
+          <div class="card card-padded mt-6 animate-fadeInUp" style="animation-delay:.35s">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-semibold text-gray-900">📎 Evidence & Attachments</h3>
+              <button onclick="uploadEvidence()" class="btn btn-secondary btn-sm text-xs">+ Upload</button>
+            </div>
+            <div id="evidenceContainer"></div>
+          </div>`;
+
+        loadEvidence();
+      } catch (err) { document.getElementById('caseContent').innerHTML = `<div class="empty-state"><h3>Case not found</h3><p>${err.message}</p></div>`; }
+    }
+
+    async function loadEvidence() {
+      try {
+        const res = await api.get(`/cases/${caseId}/evidence`);
+        const evidence = res.data || [];
+        document.getElementById('evidenceContainer').innerHTML = evidence.length ? evidence.map(e => `
+          <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+            <div class="flex items-center gap-2"><span>${e.category === 'image' ? '🖼️' : e.category === 'video' ? '🎬' : '📄'}</span>
+            <div><p class="text-xs font-medium text-gray-900">${e.title || e.originalName}</p><p class="text-[10px] text-gray-400">${e.category} • ${(e.fileSize/1024).toFixed(1)} KB</p></div></div>
+            <div class="flex items-center gap-2"><a href="${e.fileUrl}" target="_blank" class="text-xs text-indigo-600">View</a><button onclick="deleteEvidence('${e._id}')" class="text-xs text-red-400">✕</button></div>
+          </div>`).join('') : '<p class="text-xs text-gray-400">No evidence uploaded</p>';
+      } catch(e) {}
+    }
+
+    function addNote() {
+      Modal.show({ title: 'Add Note', size: 'sm', content: '<textarea id="noteContent" class="form-input" rows="4" placeholder="Enter your note..."></textarea>', actions: [
+        { label: 'Cancel', onClick: c => c() },
+        { label: 'Add', className: 'btn btn-primary', onClick: async (close) => { const content = document.getElementById('noteContent').value; if (!content) return; try { await api.post(`/cases/${caseId}/notes`, { content }); Toast.success('Note added'); close(); loadCase(); } catch(e) { Toast.error(e.message); } } }
+      ]});
+    }
+
+    async function deleteNote(noteId) { try { await api.delete(`/cases/${caseId}/notes/${noteId}`); Toast.success('Note deleted'); loadCase(); } catch(e) { Toast.error(e.message); } }
+
+    function uploadEvidence() {
+      Modal.show({ title: 'Upload Evidence', size: 'md', content: `
+        <form id="evidenceForm"><div class="form-group"><label class="form-label">File</label><input type="file" name="file" class="form-input" required></div>
+        <div class="form-group"><label class="form-label">Title</label><input name="title" class="form-input" placeholder="Evidence title"></div>
+        <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-input" rows="2"></textarea></div>
+        <button type="submit" class="btn btn-primary w-full">Upload</button></form>`, actions: [] });
+      setTimeout(() => {
+        document.getElementById('evidenceForm').addEventListener('submit', async (e) => {
+          e.preventDefault(); const fd = new FormData(e.target);
+          try { await api.upload(`/cases/${caseId}/evidence`, fd); Toast.success('Evidence uploaded'); document.getElementById('modal-overlay')?.remove(); document.body.style.overflow=''; loadEvidence(); } catch(err) { Toast.error(err.message); }
+        });
+      }, 100);
+    }
+
+    async function deleteEvidence(id) { try { await api.delete(`/cases/${caseId}/evidence/${id}`); Toast.success('Deleted'); loadEvidence(); } catch(e) { Toast.error(e.message); } }
+
+    loadCase();
+  </script>
+</body>
+</html>

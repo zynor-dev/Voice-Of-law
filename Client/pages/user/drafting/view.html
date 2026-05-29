@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Draft — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">View Draft</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900" id="draftTitle">Draft</h1><p class="text-sm text-gray-500" id="draftMeta"></p></div>
+        <div class="flex gap-2"><a href="/drafting" class="btn btn-secondary btn-sm">← Back</a><button onclick="exportPDF()" class="btn btn-primary btn-sm">📥 Export PDF</button></div></div>
+      <div class="panel-content">
+        <div id="draftContent" class="card card-padded animate-fadeInUp"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'legal-drafting');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    const draftId = new URLSearchParams(window.location.search).get('id');
+    if (!draftId) { window.location.href = '/drafting'; throw new Error(); }
+
+    async function loadDraft() {
+      try {
+        const res = await api.get(`/drafts/${draftId}`);
+        const d = res.draft;
+        document.getElementById('draftTitle').textContent = d.title;
+        document.getElementById('draftMeta').textContent = `${d.draftType} • ${d.status} • ${new Date(d.updatedAt).toLocaleDateString()}`;
+        document.getElementById('draftContent').innerHTML = `
+          <div class="prose prose-sm max-w-none">${d.content}</div>`;
+      } catch (err) { document.getElementById('draftContent').innerHTML = `<p class="text-red-500">${err.message}</p>`; }
+    }
+
+    async function exportPDF() {
+      try {
+        const res = await api.post(`/drafts/${draftId}/export`, { format: 'pdf' });
+        if (res.fileUrl) window.open(res.fileUrl, '_blank');
+        Toast.success('PDF exported!');
+      } catch(err) { Toast.error(err.message); }
+    }
+
+    loadDraft();
+  </script>
+</body>
+</html>

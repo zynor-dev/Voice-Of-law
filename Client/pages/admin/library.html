@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library Management — Voice of Law Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>\n<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="bg-gray-50 font-sans">
+  <!-- Layout Wrapper -->
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar">
+      <div class="flex flex-col h-full bg-gray-900 text-white">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-800">
+          <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">📚</div>
+          <div><span class="text-sm font-bold">Voice of Law</span><p class="text-[10px] text-gray-400">Admin</p></div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+          <a href="/admin" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📊 Dashboard</a>
+          <a href="/admin/users" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">👥 Users</a>
+          <a href="/admin/library" class="flex items-center px-3 py-2.5 rounded-lg text-sm bg-white/10 text-white font-medium">📚 Library</a>
+          <a href="/admin/templates" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📝 Templates</a>
+          <a href="/admin/announcements" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📢 Announcements</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="panel-main">
+      <div class="top-bar">
+        <div><h1 class="text-lg font-bold text-gray-900">Manage Library</h1><p class="text-sm text-gray-500">Upload and manage legal books</p></div>
+        <button onclick="showUploadBook()" class="btn btn-primary btn-sm">+ Upload Book</button>
+      </div>
+      <div class="panel-content">
+        <div class="card card-padded mb-6">
+          <input type="text" id="searchInput" class="form-input md:w-1/3" placeholder="Search books..." oninput="debounceSearch()">
+        </div>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Title</th><th>Category</th><th>Author</th><th>Downloads</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="booksList"></tbody>
+          </table>
+        </div>
+        <div id="pagination" class="mt-4"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script>
+    if (!Auth.requireAuth() || !Auth.requireAdmin()) throw new Error();
+
+    let currentPage = 1, searchTimeout;
+    function debounceSearch() { clearTimeout(searchTimeout); searchTimeout = setTimeout(loadBooks, 400); }
+
+    async function loadBooks() {
+      try {
+        const search = document.getElementById('searchInput').value;
+        let url = `/library?page=${currentPage}&limit=10`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        const res = await api.get(url);
+        
+        document.getElementById('booksList').innerHTML = res.data.length ? res.data.map(b => `
+          <tr>
+            <td class="font-medium">${b.title}</td><td><span class="badge badge-info">${b.category}</span></td><td>${b.author||'Unknown'}</td>
+            <td>${b.downloads||0}</td>
+            <td><span class="badge ${b.isActive?'badge-success':'badge-danger'}">${b.isActive?'Active':'Inactive'}</span></td>
+            <td>
+              <div class="flex gap-2">
+                <button onclick="toggleBook('${b._id}', ${!b.isActive})" class="text-xs text-indigo-600">${b.isActive?'Deactivate':'Activate'}</button>
+                <button onclick="deleteBook('${b._id}')" class="text-xs text-red-500">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="6" class="text-center py-4">No books found</td></tr>';
+      } catch (e) { Toast.error('Failed to load library'); }
+    }
+
+    function showUploadBook() {
+      Modal.show({ title: 'Upload Book', size: 'md', content: `
+        <form id="bookForm" class="space-y-4">
+          <div><label class="form-label">Title *</label><input name="title" required class="form-input"></div>
+          <div><label class="form-label">Author</label><input name="author" class="form-input"></div>
+          <div><label class="form-label">Category *</label><select name="category" required class="form-input"><option value="civil">Civil Law</option><option value="criminal">Criminal Law</option><option value="constitution">Constitution</option><option value="other">Other</option></select></div>
+          <div><label class="form-label">PDF File *</label><input type="file" name="file" accept=".pdf" required class="form-input"></div>
+          <button type="submit" class="btn btn-primary w-full">Upload</button>
+        </form>
+      `, actions: [] });
+
+      setTimeout(() => {
+        document.getElementById('bookForm').addEventListener('submit', async (e) => {
+          e.preventDefault(); const fd = new FormData(e.target);
+          try { await api.upload('/admin/library', fd); Toast.success('Book uploaded'); document.getElementById('modal-overlay').remove(); document.body.style.overflow=''; loadBooks(); } catch(err) { Toast.error(err.message); }
+        });
+      }, 100);
+    }
+
+    async function toggleBook(id, isActive) { try { await api.patch(`/admin/library/${id}`, { isActive }); loadBooks(); } catch(e){} }
+    async function deleteBook(id) { Modal.confirm('Delete this book?', async () => { try { await api.delete(`/admin/library/${id}`); Toast.success('Deleted'); loadBooks(); } catch(e) { Toast.error(e.message); } }); }
+
+    loadBooks();
+  </script>
+</body>
+</html>

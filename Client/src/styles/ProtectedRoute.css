@@ -1,0 +1,25 @@
+/* src/styles/ProtectedRoute.css */
+
+.protected-loading {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  margin-bottom: 1.5rem;
+}
+
+.protected-loading p {
+  font-size: 1.2rem;
+  font-weight: 600;
+}

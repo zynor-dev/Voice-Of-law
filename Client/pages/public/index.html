@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice of Law — AI Legal Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .hero-bg { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1600') center/cover; }
+    .glass-pill { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body class="font-sans text-gray-800">
+  <!-- Navbar -->
+  <nav class="fixed w-full z-50 transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-xl">⚖️</div>
+          <span class="font-bold text-xl text-white tracking-wide">Voice of Law</span>
+        </div>
+        <div class="hidden md:flex items-center gap-8 text-white font-medium text-sm">
+          <a href="#" class="hover:text-primary transition">Home</a>
+          <a href="#features" class="hover:text-primary transition">Features</a>
+          <a href="#about" class="hover:text-primary transition">About</a>
+          <a href="#pricing" class="hover:text-primary transition">Pricing</a>
+        </div>
+        <div class="flex items-center gap-4">
+          <a href="/login" class="text-white hover:text-primary font-medium text-sm">Sign In</a>
+          <a href="/register" class="bg-primary hover:bg-opacity-90 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition">Get Started</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-bg h-screen flex flex-col justify-center items-center text-center text-white px-4">
+    <div class="animate-fadeInUp max-w-4xl mx-auto">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">Voice Of Law</h1>
+      <p class="text-lg md:text-xl text-gray-200 mb-8">Pakistan's Most Trusted AI-Powered Legal Assistant</p>
+      
+      <div class="flex flex-wrap justify-center gap-3 mb-10">
+        <div class="glass-pill px-4 py-2 rounded-full flex items-center gap-2"><span class="text-sm font-medium">💬 AI Legal Answers</span></div>
+        <div class="glass-pill px-4 py-2 rounded-full flex items-center gap-2"><span class="text-sm font-medium">⚖️ Legal Research</span></div>
+        <div class="glass-pill px-4 py-2 rounded-full flex items-center gap-2"><span class="text-sm font-medium">📄 Document Drafting</span></div>
+      </div>
+
+      <div class="flex items-center justify-center gap-4">
+        <a href="/login" class="bg-primary hover:bg-opacity-90 text-white px-8 py-3.5 rounded-lg font-medium transition text-lg">Chat Now</a>
+        <a href="/register" class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-8 py-3.5 rounded-lg font-medium transition text-lg leading-tight">Start Free Trial</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro -->
+  <section id="about" class="py-20 bg-white px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl font-bold text-secondary mb-6">Pakistan's Most Trusted AI-Powered Legal Assistant</h2>
+      <p class="text-gray-600 leading-relaxed mb-6">Your one-stop destination for cutting-edge legal solutions powered by artificial intelligence. Voice of Law is a <strong>Most Popular And Authenticated AI law bot</strong> designed to simplify access to Pakistan's legal information, laws, judgments, drafts and resources.</p>
+      <p class="text-gray-600 leading-relaxed">Whether you're a legal professional, student, or just someone seeking clarity on Pakistan's law & legal framework, our platform is here to assist you with precision, speed, and reliability.</p>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="py-16 bg-secondary text-white">
+    <div class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div><div class="text-primary text-3xl mb-3 flex justify-center">👥</div><div class="text-3xl font-bold mb-1">10,000+</div><div class="text-gray-400 text-sm">Active Users</div></div>
+      <div><div class="text-primary text-3xl mb-3 flex justify-center">📄</div><div class="text-3xl font-bold mb-1">50,000+</div><div class="text-gray-400 text-sm">Cases Managed</div></div>
+      <div><div class="text-primary text-3xl mb-3 flex justify-center">⏰</div><div class="text-3xl font-bold mb-1">24/7</div><div class="text-gray-400 text-sm">Support</div></div>
+      <div><div class="text-primary text-3xl mb-3 flex justify-center">⭐</div><div class="text-3xl font-bold mb-1">4.9/5</div><div class="text-gray-400 text-sm">Rating</div></div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 bg-gray-50 px-4">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16"><h2 class="text-3xl font-bold text-secondary mb-3">KEY FEATURES</h2><p class="text-gray-500">Comprehensive legal tools for Pakistani professionals</p></div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">💬</div>
+          <h3 class="font-bold text-lg mb-2">AI Legal Answers</h3><p class="text-gray-500 text-sm">Get instant answers to your legal questions.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">⚖️</div>
+          <h3 class="font-bold text-lg mb-2">Legal Research</h3><p class="text-gray-500 text-sm">Access comprehensive legal resources.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">📁</div>
+          <h3 class="font-bold text-lg mb-2">Case Management</h3><p class="text-gray-500 text-sm">Organize and track all your cases.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">📝</div>
+          <h3 class="font-bold text-lg mb-2">Legal Drafting</h3><p class="text-gray-500 text-sm">Auto-generate legal documents and petitions.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">📚</div>
+          <h3 class="font-bold text-lg mb-2">Legal Library</h3><p class="text-gray-500 text-sm">Extensive library of legal documents.</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-100 feature-card transition-all">
+          <div class="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 text-xl">📅</div>
+          <h3 class="font-bold text-lg mb-2">Smart Calendar</h3><p class="text-gray-500 text-sm">Never miss a hearing or deadline.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="py-20 bg-white px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl font-bold text-secondary mb-4">Simple, Transparent Pricing</h2>
+      <p class="text-gray-500 mb-12">Start with a 15-day free trial. No credit card required.</p>
+      
+      <div class="max-w-sm mx-auto bg-white rounded-2xl border-2 border-primary overflow-hidden shadow-2xl relative">
+        <div class="absolute top-0 inset-x-0 h-1 bg-primary"></div>
+        <div class="p-8">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-2xl mx-auto mb-4">👑</div>
+          <h3 class="text-2xl font-bold mb-2">Premium Plan</h3>
+          <div class="flex items-baseline justify-center gap-1 mb-6">
+            <span class="text-4xl font-extrabold text-secondary">Rs 3,000</span><span class="text-gray-500 font-medium">/mo</span>
+          </div>
+          <ul class="space-y-4 mb-8 text-left text-sm text-gray-600">
+            <li class="flex items-center gap-3"><span class="text-green-500">✓</span> Unlimited AI Legal Queries</li>
+            <li class="flex items-center gap-3"><span class="text-green-500">✓</span> Unlimited Case Management</li>
+            <li class="flex items-center gap-3"><span class="text-green-500">✓</span> Full Library Access</li>
+            <li class="flex items-center gap-3"><span class="text-green-500">✓</span> Document Drafting</li>
+            <li class="flex items-center gap-3"><span class="text-green-500">✓</span> Priority Support</li>
+          </ul>
+          <a href="/register" class="block w-full py-3 bg-primary hover:bg-opacity-90 text-white rounded-lg font-medium transition">Start 15-Day Free Trial</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 justify-center text-center text-gray-400 py-8 border-t border-gray-800">
+    <p>© 2026 Voice of Law. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('bg-secondary', 'shadow-md');
+        nav.classList.remove('bg-transparent');
+      } else {
+        nav.classList.remove('bg-secondary', 'shadow-md');
+        nav.classList.add('bg-transparent');
+      }
+    });
+  </script>
+</body>
+</html>

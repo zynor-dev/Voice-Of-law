@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Cases — Voice of Law Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar">
+      <div class="flex flex-col h-full bg-gray-900 text-white">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-800">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
+          </div>
+          <div><span class="text-sm font-bold">Voice of Law</span><p class="text-[10px] text-gray-400">Admin Panel</p></div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+          <a href="/admin" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white">📊 Dashboard</a>
+          <a href="/admin/users" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white">👥 Users</a>
+          <a href="/admin/cases" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium bg-white/10 text-white">📋 All Cases</a>
+          <a href="/admin/library" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white">📚 Library</a>
+          <a href="/admin/templates" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white">📝 Templates</a>
+          <a href="/admin/announcements" class="flex items-center px-3 py-2.5 rounded-lg text-sm font-medium text-gray-400 hover:bg-white/5 hover:text-white">📢 Announcements</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="panel-main">
+      <div class="top-bar"><div><h1 class="text-lg font-bold text-gray-900">Platform Cases</h1><p class="text-sm text-gray-500">Monitor all legal cases created by users</p></div></div>
+      <div class="panel-content">
+        <div class="card card-padded empty-state">
+          <h3 class="text-lg font-semibold text-gray-700">Case Audit Module</h3>
+          <p class="text-gray-500 mb-4">You can view global stats for cases on the dashboard. Deep case auditing is being built.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script>if (!Auth.requireAuth() || !Auth.requireAdmin()) throw new Error();</script>
+</body>
+</html>
