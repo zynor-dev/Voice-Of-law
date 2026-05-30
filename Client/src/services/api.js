@@ -296,10 +296,10 @@ export const jotformAiAPI = {
 export const aiAPI = {
   // Send a message, optionally continuing an existing conversation
   chat: (message, conversationId = null) =>
-    api.post('/ai/chat', { message, conversationId }),
+    api.post("/ai/chat", { message, conversationId }),
 
   // List all conversations for current user
-  listConversations: (params) => api.get('/ai/conversations', { params }),
+  listConversations: (params) => api.get("/ai/conversations", { params }),
 
   // Get full conversation with all messages
   getConversation: (id) => api.get(`/ai/conversations/${id}`),
@@ -312,12 +312,12 @@ export const aiAPI = {
 
   // Upload knowledge base files (Admin only) — send FormData with 'files' field
   uploadKnowledgeBase: (formData) =>
-    api.post('/ai/knowledge-base', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+    api.post("/ai/knowledge-base", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
     }),
 
   // Check knowledge base status (Admin only)
-  getKnowledgeBaseStatus: () => api.get('/ai/knowledge-base/status'),
+  getKnowledgeBaseStatus: () => api.get("/ai/knowledge-base/status"),
 };
 // === UTILITY FUNCTIONS ===
 export const handleApiError = (error) => {
