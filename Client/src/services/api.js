@@ -5,7 +5,7 @@ function normalizeApiV1Base(raw) {
   const trimmed = (raw || "").replace(/\/$/, "");
   if (!trimmed) {
     // 👇 Live URL ko hata kar local port daal diya
-    return "http://localhost:5000/api/v1";
+    return "https://voice-of-law-backend.onrender.com/api/v1";
   }
   if (trimmed.endsWith("/v1")) return trimmed;
   if (trimmed.endsWith("/api")) return `${trimmed}/v1`;
@@ -22,7 +22,7 @@ export function getServerOrigin() {
     );
     return `${u.protocol}//${u.host}`;
   } catch {
-    return "http://localhost:5000"; // Fallback to localhost if URL parsing fails
+    return "https://voice-of-law-backend.onrender.com"; // Fallback to the backend URL if URL parsing fails
   }
 }
 
