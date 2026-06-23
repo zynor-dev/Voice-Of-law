@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — Voice of Law</title>
+  <meta name="description" content="Voice of Law — Legal case management dashboard for lawyers">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Mobile Top Bar -->
+  <div class="top-bar md:hidden">
+    <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <span class="text-sm font-bold text-gray-900">Voice of Law</span>
+    <div class="relative">
+      <button onclick="toggleNotifDropdown()" class="p-2 rounded-lg hover:bg-gray-100 relative">
+        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <span id="notifBadgeMobile" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="panel-layout">
+    <!-- Sidebar -->
+    <aside class="panel-sidebar" id="sidebar"></aside>
+
+    <!-- Main Content -->
+    <main class="panel-main">
+      <!-- Desktop Top Bar -->
+      <div class="top-bar hidden md:flex">
+        <div>
+          <h1 class="text-lg font-bold text-gray-900" id="greeting">Good Morning</h1>
+          <p class="text-sm text-gray-500" id="dateDisplay"></p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="toggleNotifDropdown()" class="p-2 rounded-lg hover:bg-gray-100 relative">
+            <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span id="notifBadge" class="hidden absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel-content">
+        <!-- Profile Card -->
+        <div id="profileCard" class="card card-padded mb-6 animate-fadeInUp"></div>
+
+        <!-- Stats Grid -->
+        <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 stagger-children"></div>
+
+        <!-- Two Column Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Upcoming Hearings -->
+          <div class="card animate-fadeInUp" style="animation-delay: 0.3s">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 class="text-sm font-semibold text-gray-900">Upcoming Hearings</h2>
+              <a href="/cases" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">View All →</a>
+            </div>
+            <div id="upcomingHearings" class="px-6 py-4"></div>
+          </div>
+
+          <!-- Upcoming Events -->
+          <div class="card animate-fadeInUp" style="animation-delay: 0.35s">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h2 class="text-sm font-semibold text-gray-900">Calendar Events</h2>
+              <a href="/calendar" class="text-xs text-indigo-600 hover:text-indigo-700 font-medium">View Calendar →</a>
+            </div>
+            <div id="upcomingEvents" class="px-6 py-4"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+
+  <script>
+    // Auth guard
+    if (!Auth.requireAuth()) throw new Error('Not authenticated');
+
+    const user = Auth.getUser();
+
+    // Initialize sidebar
+    Sidebar.render('sidebar', 'dashboard');
+
+    // Greeting
+    const hour = new Date().getHours();
+    const greetText = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    document.getElementById('greeting').textContent = `${greetText}, ${user?.fullName?.split(' ')[0] || 'User'}!`;
+
+    // Date display
+    document.getElementById('dateDisplay').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Toggle sidebar (mobile)
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('show');
+    }
+
+    // Profile Card
+    function renderProfileCard() {
+      const initial = user?.fullName?.charAt(0)?.toUpperCase() || 'U';
+      document.getElementById('profileCard').innerHTML = `
+        <div class="flex items-center gap-5 flex-wrap">
+          ${user?.profilePicture ? 
+            `<img src="${user.profilePicture}" alt="" class="w-16 h-16 rounded-2xl object-cover shadow-md">` : 
+            `<div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold shadow-md">${initial}</div>`
+          }
+          <div class="flex-1 min-w-[200px]">
+            <h2 class="text-xl font-bold text-gray-900">${user?.fullName || 'User'}</h2>
+            <p class="text-sm text-gray-500">${user?.email || ''}</p>
+            <div class="flex items-center gap-4 mt-2 text-xs text-gray-400">
+              ${user?.city ? `<span>📍 ${user.city}</span>` : ''}
+              ${user?.courtName ? `<span>🏛 ${user.courtName}</span>` : ''}
+            </div>
+          </div>
+          <a href="/profile" class="btn btn-secondary btn-sm">Edit Profile</a>
+        </div>`;
+    }
+
+    // Stats
+    async function loadDashboard() {
+      try {
+        const res = await api.get('/users/dashboard-stats');
+        const { stats, upcomingHearings, upcomingEvents } = res;
+
+        // Stats grid
+        const statCards = [
+          { label: 'Total Cases', value: stats.totalCases, from: '#667eea', to: '#764ba2', icon: '📋' },
+          { label: 'Pending', value: stats.pendingCases, from: '#f59e0b', to: '#d97706', icon: '⏳' },
+          { label: 'In Hearing', value: stats.hearingCases, from: '#3b82f6', to: '#2563eb', icon: '⚖️' },
+          { label: 'Unread Alerts', value: stats.unreadNotifications, from: '#ef4444', to: '#dc2626', icon: '🔔' },
+        ];
+
+        document.getElementById('statsGrid').innerHTML = statCards.map(s => `
+          <div class="stat-card animate-fadeInUp" style="--stat-from: ${s.from}; --stat-to: ${s.to};">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-xs font-medium opacity-80">${s.label}</p>
+                <p class="text-2xl font-bold mt-1">${s.value || 0}</p>
+              </div>
+              <span class="text-2xl">${s.icon}</span>
+            </div>
+          </div>
+        `).join('');
+
+        // Upcoming hearings
+        document.getElementById('upcomingHearings').innerHTML = upcomingHearings?.length ? 
+          upcomingHearings.map(h => `
+            <div class="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
+              <div>
+                <p class="text-sm font-medium text-gray-900">${h.title}</p>
+                <p class="text-xs text-gray-500">${h.caseNo} • ${h.court?.name || ''}</p>
+              </div>
+              <div class="text-right">
+                <span class="badge badge-${h.status === 'pending' ? 'warning' : 'info'}">${h.status}</span>
+                <p class="text-xs text-gray-400 mt-1">${new Date(h.nextHearing).toLocaleDateString()}</p>
+              </div>
+            </div>
+          `).join('') : 
+          '<p class="text-sm text-gray-400 py-4 text-center">No upcoming hearings</p>';
+
+        // Upcoming events
+        document.getElementById('upcomingEvents').innerHTML = upcomingEvents?.length ?
+          upcomingEvents.map(e => `
+            <div class="flex items-center gap-3 py-3 border-b border-gray-50 last:border-0">
+              <div class="w-2 h-2 rounded-full" style="background: ${e.color || '#667eea'}"></div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900">${e.title}</p>
+                <p class="text-xs text-gray-500">${new Date(e.date).toLocaleDateString()}</p>
+              </div>
+              <span class="badge badge-purple text-[10px]">${e.eventType || 'event'}</span>
+            </div>
+          `).join('') :
+          '<p class="text-sm text-gray-400 py-4 text-center">No upcoming events</p>';
+
+      } catch (error) {
+        console.error('Dashboard load error:', error);
+        Toast.error(error.message || 'Failed to load dashboard');
+      }
+    }
+
+    // Notification count
+    async function loadNotifCount() {
+      try {
+        const res = await api.get('/notifications/count');
+        const count = res.count || 0;
+        ['notifBadge', 'notifBadgeMobile'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            if (count > 0) { el.textContent = count > 9 ? '9+' : count; el.classList.remove('hidden'); }
+            else el.classList.add('hidden');
+          }
+        });
+      } catch (e) { /* silent */ }
+    }
+
+    // Init
+    renderProfileCard();
+    loadDashboard();
+    loadNotifCount();
+  </script>
+</body>
+</html>

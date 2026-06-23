@@ -1,0 +1,187 @@
+.features-section {
+  background-color: #f9f9f9;
+  padding: 5rem 2rem;
+  width: 100%;
+}
+
+.features-container {
+  max-width: 50%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 4rem;
+}
+
+.left-side-cards {
+  flex: 1;
+  max-width: 100%;
+  padding-right: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.left-side-cards h2 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.card-tabs {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #ccc;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.tab-button {
+  background-color: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  transform: translateY(2px);
+}
+
+.tab-button:hover {
+  color: #888;
+}
+
+.tab-button.active {
+  color: #F3C459;
+  border-bottom: 2px solid #F3C459;
+  transform: translateY(2px);
+}
+
+.cards-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.feature-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  flex: 1;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.card-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.feature-card h4 {
+  font-size: 1.5rem;
+  color: #2c2c2c;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  font-size: 1rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+/* .right-side {
+  flex: 1;
+  max-width: 50%;
+  padding-left: 2rem;
+} */
+
+.right-side h3 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
+.features-list {
+  max-height: 450px;
+  overflow-y: auto;
+  padding-right: 15px;
+}
+
+/* Custom Scrollbar for Webkit browsers (Chrome, Safari) */
+.features-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.features-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.features-list::-webkit-scrollbar-thumb {
+  background: #8b7355;
+  border-radius: 10px;
+}
+
+.features-list::-webkit-scrollbar-thumb:hover {
+  background: #5a4b3f;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  color: #8b7355;
+}
+
+.feature-details h4 {
+  font-size: 1.2rem;
+  color: #222;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.feature-details p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .features-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .left-side-cards,
+  .right-side {
+    max-width: 100%;
+    padding: 0;
+  }
+}

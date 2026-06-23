@@ -1,0 +1,327 @@
+.blog-section {
+  background: rgba(255, 255, 255, 0.937);
+  padding: 5rem 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.blog-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4rem;
+  margin-top: 50px;
+}
+
+/* --- Left Blog Content --- */
+.left-blog-content {
+  flex: 2;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+/* Styles for the "Picked" section (unchanged) */
+.blog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.category-buttons {
+  display: flex;
+  gap: 0.5rem;
+  background-color: #f0f0f0;
+  border-radius: 20px;
+  padding: 5px;
+}
+
+.category-button {
+  background-color: transparent;
+  border: none;
+  padding: 0.8rem 1.2rem;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.category-button:hover {
+  color: #333;
+  background-color: #e0e0e0;
+}
+
+.category-button.active {
+  background-color: #2c2c2c;
+  color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.picked-cards-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.picked-card {
+  flex: 1;
+  min-width: 300px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  text-align: left;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.picked-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border-radius: 50%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+}
+
+.picked-card .card-date {
+  font-size: 0.85rem;
+  color: #777;
+  margin: 1.5rem 1.5rem 0.5rem 1.5rem;
+}
+
+.picked-card .card-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 1.5rem 1.5rem 1.5rem;
+  line-height: 1.4;
+}
+
+/* Styles for the "Latest" section (now with scrolling) */
+.latest-section {
+  padding-top: 2rem;
+}
+
+.latest-scroll-wrapper {
+  max-height: 450px; /* This height shows approx 2-3 cards */
+  overflow-y: scroll;
+  /* Hide the scrollbar for a cleaner look */
+  -ms-overflow-style: none; /* For IE and Edge */
+  scrollbar-width: none;    /* For Firefox */
+}
+
+.latest-scroll-wrapper::-webkit-scrollbar {
+  display: none; /* For Chrome, Safari, and Opera */
+}
+
+.latest-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.latest-card {
+  width: 100%;
+  cursor: pointer;
+  padding: 1.5rem;
+}
+
+.latest-card-content {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.latest-image {
+  width: 250px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.latest-details {
+  flex: 1;
+}
+
+.latest-date {
+  font-size: 0.85rem;
+  color: #777;
+  margin-bottom: 0.5rem;
+}
+
+.latest-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.latest-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+.latest-card hr {
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+/* --- Right Blog Content (now sticky) --- */
+.right-blog-content {
+  flex: 1;
+  padding-left: 2rem;
+  position: sticky; /* Yeh isko sticky banata hai */
+  top: 2rem;       /* Yeh batata hai ke kitni door top se chipakna hai */
+  align-self: flex-start; /* yeh zaroori hai sticky ke liye */
+  height: fit-content;   /* Yeh content ki height leta hai, na ke pure container ki */
+}
+
+.featured-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.featured-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  position: relative;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.featured-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.featured-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.featured-title {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0 0 0.8rem 0;
+  font-weight: 700;
+}
+
+.featured-description {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tags-title {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.tag-item {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 0.6rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.tag-item:hover {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.card-overlay{
+  background: none !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .blog-wrapper {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .left-blog-content,
+  .right-blog-content {
+    flex: none;
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .right-blog-content {
+    position: static; /* Mobile par sticky hata do */
+    top: auto;
+  }
+
+  .blog-header,
+  .latest-section .section-title {
+    text-align: center;
+  }
+
+  .latest-card-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .latest-image {
+    width: 100%;
+  }
+
+  .latest-details {
+    padding: 0 1rem;
+  }
+}

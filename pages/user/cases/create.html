@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Case — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden">
+    <button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <span class="text-sm font-bold">Create Case</span><div></div>
+  </div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900">Create New Case</h1><p class="text-sm text-gray-500">Fill in the details to register a new legal case</p></div><a href="/cases" class="btn btn-secondary btn-sm">← Back to Cases</a></div>
+      <div class="panel-content">
+        <form id="caseForm" class="space-y-6">
+          <!-- Basic Info -->
+          <div class="card card-padded animate-fadeInUp">
+            <h2 class="text-sm font-semibold text-gray-900 mb-4">📋 Basic Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">Case Title *</label><input name="title" class="form-input" required placeholder="e.g. Property Dispute Case"></div>
+              <div class="form-group"><label class="form-label">Case Number *</label><input name="caseNo" class="form-input" required placeholder="e.g. 123/2024"></div>
+              <div class="form-group"><label class="form-label">Case Year *</label><input name="caseYear" type="number" class="form-input" required value="2026" min="1900" max="2100"></div>
+              <div class="form-group"><label class="form-label">Case Type *</label><select name="caseType" class="form-input" required><option value="">Select Type</option><option value="civil">Civil</option><option value="criminal">Criminal</option><option value="family">Family</option><option value="corporate">Corporate</option><option value="constitutional">Constitutional</option><option value="tax">Tax</option><option value="other">Other</option></select></div>
+              <div class="form-group"><label class="form-label">Priority</label><select name="priority" class="form-input"><option value="medium">Medium</option><option value="low">Low</option><option value="high">High</option><option value="urgent">Urgent</option></select></div>
+              <div class="form-group"><label class="form-label">Filing Date</label><input name="filingDate" type="date" class="form-input"></div>
+            </div>
+          </div>
+
+          <!-- Client Info -->
+          <div class="card card-padded animate-fadeInUp" style="animation-delay:.1s">
+            <h2 class="text-sm font-semibold text-gray-900 mb-4">👤 Client Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">Client Name *</label><input name="client.name" class="form-input" required placeholder="Full name"></div>
+              <div class="form-group"><label class="form-label">Client Contact</label><input name="client.contact" class="form-input" placeholder="Phone number"></div>
+              <div class="form-group"><label class="form-label">Client Email</label><input name="client.email" type="email" class="form-input" placeholder="Email address"></div>
+              <div class="form-group"><label class="form-label">Client Address</label><input name="client.address" class="form-input" placeholder="Address"></div>
+            </div>
+          </div>
+
+          <!-- Parties -->
+          <div class="card card-padded animate-fadeInUp" style="animation-delay:.15s">
+            <h2 class="text-sm font-semibold text-gray-900 mb-4">⚖️ Parties & Court Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-group"><label class="form-label">Petitioner *</label><input name="petitioner" class="form-input" required placeholder="Petitioner name"></div>
+              <div class="form-group"><label class="form-label">Respondent *</label><input name="respondent" class="form-input" required placeholder="Respondent name"></div>
+              <div class="form-group"><label class="form-label">On Behalf Of *</label><select name="onBehalfOf" class="form-input" required><option value="">Select</option><option value="petitioner">Petitioner</option><option value="respondent">Respondent</option><option value="complainant">Complainant</option><option value="accused">Accused</option><option value="appellant">Appellant</option></select></div>
+              <div class="form-group"><label class="form-label">Court Name *</label><input name="court.name" class="form-input" required placeholder="e.g. Lahore High Court"></div>
+              <div class="form-group"><label class="form-label">Court Location</label><input name="court.location" class="form-input" placeholder="e.g. Lahore"></div>
+              <div class="form-group"><label class="form-label">Judge Name</label><input name="court.judge" class="form-input" placeholder="Judge's name"></div>
+              <div class="form-group"><label class="form-label">Next Hearing Date</label><input name="nextHearing" type="date" class="form-input"></div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="card card-padded animate-fadeInUp" style="animation-delay:.2s">
+            <h2 class="text-sm font-semibold text-gray-900 mb-4">📝 Case Description</h2>
+            <div class="form-group"><label class="form-label">Description</label><textarea name="description" class="form-input" rows="5" placeholder="Describe the case details, facts, and background..."></textarea></div>
+            <div class="form-group"><label class="form-label">Relevant Laws (comma-separated)</label><input name="relevantLaws" class="form-input" placeholder="e.g. PPC 302, CPC Section 9"></div>
+          </div>
+
+          <!-- Submit -->
+          <div class="flex items-center justify-end gap-3">
+            <a href="/cases" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Create Case
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'my-cases');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    document.getElementById('caseForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true; btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Creating...';
+
+      try {
+        const fd = new FormData(e.target);
+        const data = {};
+        fd.forEach((val, key) => {
+          if (key.includes('.')) {
+            const [parent, child] = key.split('.');
+            if (!data[parent]) data[parent] = {};
+            data[parent][child] = val;
+          } else if (key === 'relevantLaws') {
+            data[key] = val ? val.split(',').map(s => s.trim()).filter(Boolean) : [];
+          } else { data[key] = val; }
+        });
+
+        const res = await api.post('/cases', data);
+        Toast.success('Case created successfully!');
+        setTimeout(() => window.location.href = '/cases', 1000);
+      } catch (error) {
+        Toast.error(error.message || 'Failed to create case');
+        btn.disabled = false; btn.innerHTML = 'Create Case';
+      }
+    });
+  </script>
+</body>
+</html>

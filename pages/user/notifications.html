@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Notifications</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex">
+        <div><h1 class="text-lg font-bold text-gray-900">Notifications</h1><p class="text-sm text-gray-500">Stay updated with your case activities</p></div>
+        <div class="flex items-center gap-2">
+          <button onclick="markAllRead()" class="btn btn-secondary btn-sm">✓ Mark All Read</button>
+          <button onclick="clearAll()" class="btn btn-danger btn-sm">Clear All</button>
+        </div>
+      </div>
+      <div class="panel-content">
+        <div class="flex items-center gap-2 mb-4">
+          <button onclick="setFilter('')" class="btn btn-sm" id="filterAll">All</button>
+          <button onclick="setFilter('true')" class="btn btn-sm btn-secondary" id="filterUnread">Unread</button>
+        </div>
+        <div id="notifContainer"></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script src="/js/components/loader.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'notifications');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    let unreadFilter = '';
+    const typeIcons = { case: '📋', hearing: '⚖️', draft: '📝', system: '⚙️', reminder: '⏰', announcement: '📢' };
+    const priorityColors = { high: 'border-l-red-500', medium: 'border-l-amber-500', low: 'border-l-blue-500' };
+
+    function setFilter(val) {
+      unreadFilter = val;
+      document.getElementById('filterAll').className = `btn btn-sm ${val === '' ? 'btn-primary' : 'btn-secondary'}`;
+      document.getElementById('filterUnread').className = `btn btn-sm ${val === 'true' ? 'btn-primary' : 'btn-secondary'}`;
+      loadNotifications();
+    }
+
+    async function loadNotifications() {
+      const container = document.getElementById('notifContainer');
+      container.innerHTML = Loader.show();
+      try {
+        let url = '/notifications?limit=50';
+        if (unreadFilter) url += `&unread=${unreadFilter}`;
+        const res = await api.get(url);
+        const notifs = res.data || [];
+
+        if (!notifs.length) {
+          container.innerHTML = '<div class="empty-state"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg><h3>No notifications</h3><p>You\'re all caught up!</p></div>';
+          return;
+        }
+
+        container.innerHTML = notifs.map(n => `
+          <div class="card card-padded mb-2 border-l-4 ${priorityColors[n.priority] || 'border-l-gray-300'} ${n.isRead ? 'opacity-60' : ''} animate-fadeInUp cursor-pointer" onclick="markRead('${n._id}')">
+            <div class="flex items-start gap-3">
+              <span class="text-lg">${typeIcons[n.type] || '📌'}</span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm font-semibold text-gray-900">${n.title}</h3>
+                  ${!n.isRead ? '<span class="w-2 h-2 bg-indigo-500 rounded-full"></span>' : ''}
+                </div>
+                <p class="text-xs text-gray-600 mt-0.5">${n.message}</p>
+                <p class="text-[10px] text-gray-400 mt-1">${timeAgo(n.createdAt)}</p>
+              </div>
+              <button onclick="event.stopPropagation(); deleteNotif('${n._id}')" class="text-gray-400 hover:text-red-500 text-xs p-1">✕</button>
+            </div>
+          </div>`).join('');
+      } catch (err) { container.innerHTML = '<p class="text-center text-red-500">Failed to load notifications</p>'; }
+    }
+
+    function timeAgo(date) {
+      const s = Math.floor((Date.now() - new Date(date)) / 1000);
+      if (s < 60) return 'Just now';
+      if (s < 3600) return `${Math.floor(s/60)}m ago`;
+      if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+      return `${Math.floor(s/86400)}d ago`;
+    }
+
+    async function markRead(id) { try { await api.patch(`/notifications/${id}/read`); loadNotifications(); } catch(e){} }
+    async function markAllRead() { try { await api.patch('/notifications/read-all'); Toast.success('All marked as read'); loadNotifications(); } catch(e) { Toast.error(e.message); } }
+    async function deleteNotif(id) { try { await api.delete(`/notifications/${id}`); loadNotifications(); } catch(e){} }
+    async function clearAll() { Modal.confirm('Delete all notifications?', async () => { try { await api.delete('/notifications/clear'); Toast.success('Cleared'); loadNotifications(); } catch(e) { Toast.error(e.message); } }); }
+
+    setFilter('');
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Templates Management — Voice of Law Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>\n<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar">
+      <div class="flex flex-col h-full bg-gray-900 text-white">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-800">
+          <div class="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">📝</div>
+          <div><span class="text-sm font-bold">Voice of Law</span><p class="text-[10px] text-gray-400">Admin</p></div>
+        </div>
+        <nav class="flex-1 px-3 py-4 space-y-1">
+          <a href="/admin" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📊 Dashboard</a>
+          <a href="/admin/users" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">👥 Users</a>
+          <a href="/admin/library" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📚 Library</a>
+          <a href="/admin/templates" class="flex items-center px-3 py-2.5 rounded-lg text-sm bg-white/10 text-white font-medium">📝 Templates</a>
+          <a href="/admin/announcements" class="flex items-center px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-white/5">📢 Announcements</a>
+        </nav>
+      </div>
+    </aside>
+
+    <main class="panel-main">
+      <div class="top-bar">
+        <div><h1 class="text-lg font-bold text-gray-900">Manage Templates</h1><p class="text-sm text-gray-500">Create legal drafting templates</p></div>
+        <button onclick="showCreateTemplate()" class="btn btn-primary btn-sm">+ New Template</button>
+      </div>
+      <div class="panel-content">
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Name</th><th>Category</th><th>Premium</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="templatesList"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/modal.js"></script>
+  <script>
+    if (!Auth.requireAuth() || !Auth.requireAdmin()) throw new Error();
+
+    async function loadTemplates() {
+      try {
+        const res = await api.get('/admin/templates');
+        document.getElementById('templatesList').innerHTML = res.templates.length ? res.templates.map(t => `
+          <tr>
+            <td class="font-medium">${t.name}</td><td><span class="badge badge-info">${t.category}</span></td>
+            <td>${t.isPremium?'👑 Yes':'No'}</td><td><span class="badge ${t.isActive?'badge-success':'badge-danger'}">${t.isActive?'Active':'Inactive'}</span></td>
+            <td>
+              <div class="flex gap-2">
+                <button onclick="toggleTemplate('${t._id}', ${!t.isActive})" class="text-xs text-indigo-600">${t.isActive?'Deactivate':'Activate'}</button>
+                <button onclick="deleteTemplate('${t._id}')" class="text-xs text-red-500">Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('') : '<tr><td colspan="5" class="text-center py-4">No templates found</td></tr>';
+      } catch (e) { Toast.error('Failed to load templates'); }
+    }
+
+    function showCreateTemplate() {
+      Modal.show({ title: 'New Template', size: 'lg', content: `
+        <form id="templateForm" class="space-y-4">
+          <div><label class="form-label">Name *</label><input name="name" required class="form-input"></div>
+          <div><label class="form-label">Category *</label>
+            <select name="category" required class="form-input">
+              <option value="petition">Petition</option><option value="affidavit">Affidavit</option><option value="bail">Bail</option><option value="appeal">Appeal</option><option value="contract">Contract</option><option value="notice">Notice</option><option value="other">Other</option>
+            </select>
+          </div>
+          <div><label class="form-label">Content *</label><textarea name="content" required rows="10" class="form-input font-mono text-sm"></textarea></div>
+          <div class="flex items-center gap-2"><input type="checkbox" name="isPremium"><label class="text-sm text-gray-700">Premium Only</label></div>
+          <button type="submit" class="btn btn-primary w-full">Create Template</button>
+        </form>
+      `, actions: [] });
+
+      setTimeout(() => {
+        document.getElementById('templateForm').addEventListener('submit', async (e) => {
+          e.preventDefault(); const fd = new FormData(e.target);
+          const data = { name: fd.get('name'), category: fd.get('category'), content: fd.get('content'), isPremium: !!fd.get('isPremium') };
+          try { await api.post('/admin/templates', data); Toast.success('Template created'); document.getElementById('modal-overlay').remove(); document.body.style.overflow=''; loadTemplates(); } catch(err) { Toast.error(err.message); }
+        });
+      }, 100);
+    }
+
+    async function toggleTemplate(id, isActive) { try { await api.patch(`/admin/templates/${id}`, { isActive }); loadTemplates(); } catch(e){} }
+    async function deleteTemplate(id) { Modal.confirm('Delete this template?', async () => { try { await api.delete(`/admin/templates/${id}`); Toast.success('Deleted'); loadTemplates(); } catch(e) {} }); }
+
+    loadTemplates();
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+.mustard-section {
+  background-color: rgba(44, 44, 44, 0.898); /* Background white */
+  padding: 11rem 2rem;
+color: white ; /* Text color for contrast */
+}
+
+.mustard-section .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mustard-section .left-content {
+  flex: 1;
+  padding-right: 2rem;
+  text-align: center;
+}
+
+.mustard-section .right-content {
+  flex: 1;
+}
+
+.mustard-section .left-content img {
+  max-width: 80%; /* Image ka size chhota kiya */
+  height: auto;
+}
+
+.mustard-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  font-weight: 900; /* Heading ko bold tareen kiya */
+}
+
+.mustard-section .black-heading {
+  color: white ;/* "Why" black */
+}
+
+.mustard-section .mustard-heading {
+  color: #d79b10; /* "LegalGPT" mustard color */
+}
+
+.mustard-section p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  color: white;
+}
+
+.mustard-section .dark-button {
+  background-color: #838383; /* Button color dark gray */
+  color: #ffffff;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.mustard-section .dark-button:hover {
+  background-color: #555;
+}
+.hero-content h1{
+ 
+ font-weight: 900;
+
+}
+/* Responsive layout */
+@media (max-width: 992px) {
+  .mustard-section .container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .mustard-section .left-content {
+    order: 2; /* Mobile pe image content ke baad aayegi */
+    padding-right: 0;
+    margin-bottom: 3rem;
+  }
+
+  .mustard-section .right-content {
+    order: 1; /* Mobile pe content pehle aayega */
+  }
+
+  .mustard-section .left-content img {
+    margin-top: 30px;
+    max-width: 100%; /* Mobile pe image wapas full size ho jayegi */
+  }
+  
+}

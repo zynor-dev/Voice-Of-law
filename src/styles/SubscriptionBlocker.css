@@ -1,0 +1,416 @@
+/* src/styles/SubscriptionBlocker.css - FULLY RESPONSIVE WITH EXACT THEME */
+
+/* Import same fonts as UserPanel */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* Using exact same color variables from UserPanel.css */
+:root {
+  --primary-dark-bg: #2a2d35;
+  --accent-gold: #d79b10;
+  --card-bg-light: #F0F2F5;
+  --dashboard-bg: #EAEAEA;
+  --text-dark: #2C3E50;
+  --text-light-grey: #95A5A6;
+  --text-white: #FFFFFF;
+  --border-grey: #D5D5D5;
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-dark: rgba(0, 0, 0, 0.25);
+  --soft-purple: #17161e;
+  --soft-pink: #a48e65;
+  --soft-blue: #3498DB;
+  --soft-green: #2ECC71;
+}
+
+/* Overlay - FULLY RESPONSIVE */
+.subscription-blocker-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 1rem;
+  backdrop-filter: blur(5px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Modal Container - RESPONSIVE */
+.subscription-blocker-modal {
+  background: var(--text-white);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 900px;
+  max-height: 95vh;
+  position: relative;
+  box-shadow: 0 25px 70px var(--shadow-dark);
+  overflow-y: auto;
+  margin: auto;
+  /* Horizontal layout on desktop */
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: center;
+}
+
+/* Close Button */
+.blocker-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--card-bg-light);
+  border: none;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1.2rem;
+  color: var(--text-dark);
+  z-index: 10;
+}
+
+.blocker-close:hover {
+  background: var(--border-grey);
+  transform: rotate(90deg);
+}
+
+/* Left Section - Icon & Title */
+.blocker-left-section {
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--soft-purple) 0%, var(--primary-dark-bg) 100%);
+  border-radius: 15px;
+}
+
+.blocker-icon {
+  font-size: 4rem;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.blocker-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-white);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Right Section - Content */
+.blocker-right-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.blocker-message {
+  font-size: 1rem;
+  color: var(--text-dark);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.blocker-message strong {
+  color: var(--soft-blue);
+  font-weight: 700;
+}
+
+/* Features List - Compact */
+.blocker-features {
+  background: var(--card-bg-light);
+  padding: 1rem;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.blocker-feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.blocker-feature-item svg {
+  color: var(--soft-green);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* Price - Compact */
+.blocker-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--soft-purple) 0%, var(--primary-dark-bg) 100%);
+  border-radius: 10px;
+  color: var(--text-white);
+}
+
+.blocker-price-label {
+  font-size: 0.9rem;
+}
+
+.blocker-price-amount {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--accent-gold);
+}
+
+.blocker-price-period {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Buttons */
+.blocker-subscribe-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--soft-blue), var(--primary-dark-bg));
+  color: var(--text-white);
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.blocker-subscribe-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px var(--shadow-dark);
+}
+
+.blocker-cancel-btn {
+  background: none;
+  border: none;
+  color: var(--text-light-grey);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.3s;
+}
+
+.blocker-cancel-btn:hover {
+  color: var(--text-dark);
+  text-decoration: underline;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Tablets and smaller (below 1024px) - VERTICAL LAYOUT */
+@media (max-width: 1024px) {
+  .subscription-blocker-modal {
+    flex-direction: column;
+    max-width: 550px;
+    padding: 2rem 1.5rem;
+  }
+
+  .blocker-left-section {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    padding: 1.5rem 1rem;
+  }
+
+  .blocker-icon {
+    font-size: 3rem;
+  }
+
+  .blocker-title {
+    font-size: 1.5rem;
+  }
+
+  .blocker-right-section {
+    width: 100%;
+  }
+}
+
+/* Mobile phones (below 768px) */
+@media (max-width: 768px) {
+  .subscription-blocker-overlay {
+    padding: 0.5rem;
+  }
+
+  .subscription-blocker-modal {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+    max-height: 98vh;
+    gap: 1rem;
+  }
+
+  .blocker-close {
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .blocker-left-section {
+    padding: 1rem;
+  }
+
+  .blocker-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .blocker-title {
+    font-size: 1.3rem;
+  }
+
+  .blocker-message {
+    font-size: 0.9rem;
+  }
+
+  .blocker-features {
+    padding: 0.875rem;
+    gap: 0.4rem;
+  }
+
+  .blocker-feature-item {
+    font-size: 0.85rem;
+    gap: 0.4rem;
+  }
+
+  .blocker-price {
+    padding: 0.875rem;
+  }
+
+  .blocker-price-amount {
+    font-size: 1.75rem;
+  }
+
+  .blocker-subscribe-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Very small phones (below 400px) */
+@media (max-width: 400px) {
+  .subscription-blocker-modal {
+    padding: 1rem 0.75rem;
+    gap: 0.75rem;
+  }
+
+  .blocker-icon {
+    font-size: 2rem;
+  }
+
+  .blocker-title {
+    font-size: 1.1rem;
+  }
+
+  .blocker-message {
+    font-size: 0.85rem;
+  }
+
+  .blocker-feature-item {
+    font-size: 0.8rem;
+  }
+
+  .blocker-price-amount {
+    font-size: 1.5rem;
+  }
+
+  .blocker-subscribe-btn {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 600px) and (orientation: landscape) {
+  .subscription-blocker-modal {
+    max-height: 95vh;
+    padding: 1rem;
+    flex-direction: row;
+    max-width: 90vw;
+  }
+
+  .blocker-left-section {
+    flex: 0 0 200px;
+    padding: 1rem;
+  }
+
+  .blocker-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .blocker-title {
+    font-size: 1rem;
+  }
+
+  .blocker-features {
+    padding: 0.5rem;
+  }
+
+  .blocker-feature-item {
+    font-size: 0.75rem;
+  }
+
+  .blocker-price {
+    padding: 0.5rem;
+  }
+
+  .blocker-price-amount {
+    font-size: 1.25rem;
+  }
+}
+
+/* Fix for very wide screens */
+@media (min-width: 1920px) {
+  .subscription-blocker-modal {
+    max-width: 1000px;
+  }
+}
+
+/* Ensure no overflow on any device */
+* {
+  box-sizing: border-box;
+}
+
+.subscription-blocker-modal * {
+  max-width: 100%;
+}

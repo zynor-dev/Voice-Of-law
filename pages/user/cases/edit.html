@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Case — Voice of Law</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            vol: {
+              main: '#13141f',
+              sidebar: '#1a1b26',
+              card: '#1f2029',
+              hover: '#2a2b36',
+              border: '#2f303d',
+              gold: '#d4af37',
+              goldHover: '#f2c94c',
+              goldDark: '#a18321',
+              text: '#f3f4f6',
+              textMuted: '#9ca3af'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="top-bar md:hidden"><button onclick="toggleSidebar()" class="p-2 rounded-lg hover:bg-gray-100"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="text-sm font-bold">Edit Case</span><div></div></div>
+  <div class="panel-layout">
+    <aside class="panel-sidebar" id="sidebar"></aside>
+    <main class="panel-main">
+      <div class="top-bar hidden md:flex"><div><h1 class="text-lg font-bold text-gray-900">Edit Case</h1><p class="text-sm text-gray-500" id="caseTitle"></p></div><a href="/cases" class="btn btn-secondary btn-sm">← Back</a></div>
+      <div class="panel-content" id="formContainer"></div>
+    </main>
+  </div>
+  <script src="/js/utils/api.js"></script>
+  <script src="/js/utils/auth.js"></script>
+  <script src="/js/components/toast.js"></script>
+  <script src="/js/components/sidebar.js"></script>
+  <script>
+    if (!Auth.requireAuth()) throw new Error();
+    Sidebar.render('sidebar', 'my-cases');
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+
+    const caseId = new URLSearchParams(window.location.search).get('id');
+    if (!caseId) { window.location.href = '/cases'; throw new Error(); }
+
+    function formatDate(d) { if (!d) return ''; return new Date(d).toISOString().split('T')[0]; }
+
+    async function loadCase() {
+      try {
+        const res = await api.get(`/cases/${caseId}`);
+        const c = res.case;
+        document.getElementById('caseTitle').textContent = c.title;
+
+        document.getElementById('formContainer').innerHTML = `
+          <form id="editForm" class="space-y-6">
+            <div class="card card-padded"><h2 class="text-sm font-semibold mb-4">📋 Basic Info</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group"><label class="form-label">Title</label><input name="title" class="form-input" value="${c.title}" required></div>
+                <div class="form-group"><label class="form-label">Case No</label><input name="caseNo" class="form-input" value="${c.caseNo}" required></div>
+                <div class="form-group"><label class="form-label">Year</label><input name="caseYear" type="number" class="form-input" value="${c.caseYear}" required></div>
+                <div class="form-group"><label class="form-label">Type</label><select name="caseType" class="form-input">${['civil','criminal','family','corporate','constitutional','tax','other'].map(t => `<option value="${t}" ${c.caseType===t?'selected':''}>${t}</option>`).join('')}</select></div>
+                <div class="form-group"><label class="form-label">Status</label><select name="status" class="form-input">${['pending','hearing','reserved','disposed','appealed'].map(s => `<option value="${s}" ${c.status===s?'selected':''}>${s}</option>`).join('')}</select></div>
+                <div class="form-group"><label class="form-label">Priority</label><select name="priority" class="form-input">${['low','medium','high','urgent'].map(p => `<option value="${p}" ${c.priority===p?'selected':''}>${p}</option>`).join('')}</select></div>
+                <div class="form-group"><label class="form-label">Filing Date</label><input name="filingDate" type="date" class="form-input" value="${formatDate(c.filingDate)}"></div>
+                <div class="form-group"><label class="form-label">Next Hearing</label><input name="nextHearing" type="date" class="form-input" value="${formatDate(c.nextHearing)}"></div>
+              </div></div>
+            <div class="card card-padded"><h2 class="text-sm font-semibold mb-4">👤 Client</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group"><label class="form-label">Name</label><input name="client.name" class="form-input" value="${c.client?.name||''}" required></div>
+                <div class="form-group"><label class="form-label">Contact</label><input name="client.contact" class="form-input" value="${c.client?.contact||''}"></div>
+                <div class="form-group"><label class="form-label">Email</label><input name="client.email" type="email" class="form-input" value="${c.client?.email||''}"></div>
+                <div class="form-group"><label class="form-label">Address</label><input name="client.address" class="form-input" value="${c.client?.address||''}"></div>
+              </div></div>
+            <div class="card card-padded"><h2 class="text-sm font-semibold mb-4">⚖️ Parties & Court</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-group"><label class="form-label">Petitioner</label><input name="petitioner" class="form-input" value="${c.petitioner}" required></div>
+                <div class="form-group"><label class="form-label">Respondent</label><input name="respondent" class="form-input" value="${c.respondent}" required></div>
+                <div class="form-group"><label class="form-label">On Behalf Of</label><select name="onBehalfOf" class="form-input">${['petitioner','respondent','complainant','accused','appellant'].map(o => `<option value="${o}" ${c.onBehalfOf===o?'selected':''}>${o}</option>`).join('')}</select></div>
+                <div class="form-group"><label class="form-label">Court</label><input name="court.name" class="form-input" value="${c.court?.name||''}" required></div>
+                <div class="form-group"><label class="form-label">Location</label><input name="court.location" class="form-input" value="${c.court?.location||''}"></div>
+                <div class="form-group"><label class="form-label">Judge</label><input name="court.judge" class="form-input" value="${c.court?.judge||''}"></div>
+              </div></div>
+            <div class="card card-padded"><h2 class="text-sm font-semibold mb-4">📝 Description</h2>
+              <textarea name="description" class="form-input" rows="5">${c.description||''}</textarea></div>
+            <div class="flex justify-end gap-3"><a href="/cases/view?id=${caseId}" class="btn btn-secondary">Cancel</a><button type="submit" class="btn btn-primary">Save Changes</button></div>
+          </form>`;
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const data = {};
+          fd.forEach((val, key) => {
+            if (key.includes('.')) { const [p,ch]=key.split('.'); if(!data[p])data[p]={}; data[p][ch]=val; }
+            else data[key]=val;
+          });
+          try { await api.put(`/cases/${caseId}`, data); Toast.success('Case updated!'); setTimeout(() => window.location.href = `/cases/view?id=${caseId}`, 1000); } catch(err) { Toast.error(err.message); }
+        });
+      } catch (err) { document.getElementById('formContainer').innerHTML = `<p class="text-center text-red-500 py-10">${err.message}</p>`; }
+    }
+
+    loadCase();
+  </script>
+</body>
+</html>
