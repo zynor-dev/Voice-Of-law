@@ -1,30 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import {
-  FaEye,
-  FaEyeSlash,
-  FaCheck,
-  FaTimes,
-  FaCrown,
-  FaRocket,
-} from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import lawgptLogo from "../assets/image/logo.png";
-import {
-  Scale,
-  MessageSquare,
-  FileText,
-  Mail,
-  Lock,
-  User,
-  ArrowLeft,
-  Chrome,
-} from "lucide-react";
+import { Scale, Chrome } from "lucide-react";
 import { API_V1_BASE } from "../services/api";
+
+const GOOGLE_CLIENT_ID =
+  "280320345760-grosn2ifh7rcnk6bju54gcpi57v2n23l.apps.googleusercontent.com";
 
 const EnhancedAuthPage = () => {
   const { mode } = useParams();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -32,8 +19,18 @@ const EnhancedAuthPage = () => {
   const [courtName, setCourtName] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+
+  // ─── OTP screen state ──────────────────────────────────────
+  const [step, setStep] = useState("form"); // 'form' | 'otp'
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpEmail, setOtpEmail] = useState("");
+  const [resendTimer, setResendTimer] = useState(0);
+  const otpRefs = useRef([]);
+
+  const googleBtnRef = useRef(null);
 
   useEffect(() => {
     if (!mode || (mode !== "login" && mode !== "signup")) {
@@ -43,9 +40,93 @@ const EnhancedAuthPage = () => {
 
   const isLoginMode = mode === "login";
 
+  // ─── Resend OTP countdown ──────────────────────────────────
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const t = setTimeout(() => setResendTimer((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [resendTimer]);
+
+  // ─── Finish login: store data + redirect ──────────────────
+  const completeAuth = useCallback(
+    (data) => {
+      const userData = { ...data.user, token: data.token };
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("voicelaw_user", JSON.stringify(userData));
+
+      if (data.user.role === "admin") {
+        navigate("/dashboard", { replace: true });
+      } else {
+        navigate("/user-panel", { replace: true });
+      }
+    },
+    [navigate],
+  );
+
+  // ─── Google Identity Services ──────────────────────────────
+  const handleGoogleCredential = useCallback(
+    async (response) => {
+      setError("");
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_V1_BASE}/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (res.ok && data.token && data.user) {
+          completeAuth(data);
+        } else {
+          setError(data.message || "Google sign-in failed. Please try again.");
+        }
+      } catch (err) {
+        console.error("Google auth error:", err);
+        setError("Connection error during Google sign-in.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [completeAuth],
+  );
+
+  useEffect(() => {
+    // Load Google's script once
+    if (document.getElementById("google-identity-script")) {
+      initGoogleButton();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.id = "google-identity-script";
+    script.async = true;
+    script.defer = true;
+    script.onload = initGoogleButton;
+    document.body.appendChild(script);
+
+    function initGoogleButton() {
+      if (!window.google || !googleBtnRef.current) return;
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleGoogleCredential,
+      });
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: "outline",
+        size: "large",
+        width: googleBtnRef.current.offsetWidth || 360,
+        text: isLoginMode ? "signin_with" : "signup_with",
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, isLoginMode]);
+
+  // ─── Email/Password submit ──────────────────────────────────
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setInfo("");
     setLoading(true);
 
     const endpoint = isLoginMode
@@ -80,22 +161,25 @@ const EnhancedAuthPage = () => {
 
       const data = await response.json().catch(() => ({}));
 
-      if (response.ok && data.token && data.user) {
-        const userData = { ...data.user, token: data.token };
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("voicelaw_user", JSON.stringify(userData));
-
-        if (!isLoginMode) {
-          alert("Welcome! Your trial has started.");
+      if (!response.ok) {
+        // Existing-but-unverified login attempt
+        if (data.errors?.needsVerification) {
+          setOtpEmail(data.errors.email || email.trim());
+          setStep("otp");
+          setResendTimer(30);
+          setError("");
+          setInfo("Please verify your email to continue.");
+          setLoading(false);
+          return;
         }
-
-        if (data.user.role === "admin") {
-          navigate("/dashboard", { replace: true });
-        } else {
-          navigate("/user-panel", { replace: true });
+        // Account already exists and is verified — don't show OTP screen
+        if (data.errors?.accountExists) {
+          setError(
+            "An account with this email already exists. Please login instead.",
+          );
+          setLoading(false);
+          return;
         }
-      } else {
         const msg =
           data.message ||
           (Array.isArray(data.errors) && data.errors.length
@@ -103,6 +187,19 @@ const EnhancedAuthPage = () => {
             : null) ||
           "An error occurred";
         setError(msg);
+        setLoading(false);
+        return;
+      }
+
+      if (isLoginMode) {
+        // Login success → token already issued
+        completeAuth(data);
+      } else {
+        // Register success → move to OTP screen (no token yet)
+        setOtpEmail(payload.email);
+        setStep("otp");
+        setResendTimer(30);
+        setInfo("We've sent a 6-digit code to your email.");
       }
     } catch (err) {
       console.error("Auth error:", err);
@@ -112,15 +209,193 @@ const EnhancedAuthPage = () => {
     }
   };
 
+  // ─── OTP input handlers ─────────────────────────────────────
+  const handleOtpChange = (idx, value) => {
+    if (!/^\d?$/.test(value)) return;
+    const next = [...otp];
+    next[idx] = value;
+    setOtp(next);
+    if (value && idx < 5) otpRefs.current[idx + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (idx, e) => {
+    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+      otpRefs.current[idx - 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (e) => {
+    const text = e.clipboardData.getData("text").trim();
+    if (/^\d{6}$/.test(text)) {
+      setOtp(text.split(""));
+      otpRefs.current[5]?.focus();
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    const code = otp.join("");
+    if (code.length !== 6) {
+      setError("Please enter the complete 6-digit code.");
+      return;
+    }
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_V1_BASE}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail, otp: code }),
+      });
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.token && data.user) {
+        completeAuth(data);
+      } else {
+        setError(data.message || "Invalid or expired code.");
+      }
+    } catch (err) {
+      console.error("OTP verify error:", err);
+      setError("Connection error. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resendTimer > 0) return;
+    setError("");
+    setInfo("");
+    try {
+      const res = await fetch(`${API_V1_BASE}/auth/resend-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: otpEmail }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setInfo("A new code has been sent to your email.");
+        setResendTimer(30);
+        setOtp(["", "", "", "", "", ""]);
+        otpRefs.current[0]?.focus();
+      } else {
+        setError(data.message || "Could not resend code.");
+      }
+    } catch (err) {
+      setError("Connection error while resending code.");
+    }
+  };
+
+  // ─── Render: OTP Screen ──────────────────────────────────────
+  if (step === "otp") {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="flex flex-col items-center mb-6">
+              <img
+                src={lawgptLogo}
+                alt="Voice of Law Logo"
+                className="w-20 h-auto mb-3"
+              />
+              <h1
+                className="text-2xl font-bold mb-1"
+                style={{ color: "#2c2c2c" }}
+              >
+                Verify your email
+              </h1>
+              <p className="text-sm text-gray-600 text-center mt-1">
+                We've sent a 6-digit code to
+                <br />
+                <span className="font-medium" style={{ color: "#8b7355" }}>
+                  {otpEmail}
+                </span>
+              </p>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-5 border-l-4 border-red-700 text-sm">
+                {error}
+              </div>
+            )}
+            {info && !error && (
+              <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-5 border-l-4 border-green-600 text-sm">
+                {info}
+              </div>
+            )}
+
+            <form onSubmit={handleVerifyOtp}>
+              <div
+                className="flex justify-center gap-2 mb-6"
+                onPaste={handleOtpPaste}
+              >
+                {otp.map((digit, idx) => (
+                  <input
+                    key={idx}
+                    ref={(el) => (otpRefs.current[idx] = el)}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                    className="w-12 h-14 text-center text-xl font-semibold border border-gray-300 rounded-lg focus:outline-none focus:ring-2"
+                    style={{ "--tw-ring-color": "#8b7355" }}
+                  />
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 text-white rounded-lg font-medium transition text-sm"
+                style={{ backgroundColor: "#2c2c2c" }}
+              >
+                {loading ? (
+                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  "Verify & Continue"
+                )}
+              </button>
+            </form>
+
+            <div className="mt-5 text-center text-sm text-gray-600">
+              Didn't get the code?{" "}
+              <button
+                onClick={handleResendOtp}
+                disabled={resendTimer > 0}
+                className="font-medium disabled:text-gray-400 disabled:cursor-not-allowed"
+                style={{ color: resendTimer > 0 ? undefined : "#8b7355" }}
+              >
+                {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend code"}
+              </button>
+            </div>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => {
+                  setStep("form");
+                  setError("");
+                  setInfo("");
+                  setOtp(["", "", "", "", "", ""]);
+                }}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Render: Login / Signup Form ─────────────────────────────
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Back Button */}
-        
-
-        {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <Link to="/">
               <img
@@ -142,67 +417,37 @@ const EnhancedAuthPage = () => {
             </div>
           </div>
 
-          {/* Subtitle */}
           <div className="text-center mb-6">
             <p className="text-xs text-gray-500">
-              Pakistan First Legal Marketplace & AI-powered legal Assistance
+              Pakistan's First Legal Marketplace & AI-powered Legal Assistance
             </p>
           </div>
-
-          {/* Service Tags */}
-          {/* <div className="flex flex-wrap justify-center gap-3 mb-8">
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-lg border border-amber-200">
-              <MessageSquare className="w-4 h-4" style={{ color: "#8b7355" }} />
-              <span
-                className="text-xs font-medium"
-                style={{ color: "#8b7355" }}
-              >
-                AI Legal Answers
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-lg border border-amber-200">
-              <Scale className="w-4 h-4" style={{ color: "#8b7355" }} />
-              <span
-                className="text-xs font-medium"
-                style={{ color: "#8b7355" }}
-              >
-                Legal Research
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 rounded-lg border border-amber-200">
-              <FileText className="w-4 h-4" style={{ color: "#8b7355" }} />
-              <span
-                className="text-xs font-medium"
-                style={{ color: "#8b7355" }}
-              >
-                Legal Consultations
-              </span>
-            </div>
-          </div> */}
 
           {error && (
             <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-6 border-l-4 border-red-700 text-sm">
               {error}
             </div>
           )}
+          {info && !error && (
+            <div className="bg-green-50 text-green-700 p-4 rounded-lg mb-6 border-l-4 border-green-600 text-sm">
+              {info}
+            </div>
+          )}
 
-          {/* Form */}
-          <div className="space-y-5">
+          <form onSubmit={handleAuthSubmit} className="space-y-5">
             {!isLoginMode && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your full name"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
-                    style={{ "--tw-ring-color": "#8b7355" }}
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your full name"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                  style={{ "--tw-ring-color": "#8b7355" }}
+                />
               </div>
             )}
 
@@ -210,16 +455,14 @@ const EnhancedAuthPage = () => {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
-              <div className="relative">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
-                  style={{ "--tw-ring-color": "#8b7355" }}
-                />
-              </div>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                style={{ "--tw-ring-color": "#8b7355" }}
+              />
             </div>
 
             <div>
@@ -232,7 +475,7 @@ const EnhancedAuthPage = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
+                  className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
                   style={{ "--tw-ring-color": "#8b7355" }}
                 />
                 <button
@@ -290,17 +533,18 @@ const EnhancedAuthPage = () => {
                   />
                   <span className="text-sm text-gray-700">Remember me</span>
                 </label>
-                <button
+                <Link
+                  to="/auth/forgot-password"
                   className="text-sm font-medium"
                   style={{ color: "#8b7355" }}
                 >
                   Forgot Password?
-                </button>
+                </Link>
               </div>
             )}
 
             <button
-              onClick={handleAuthSubmit}
+              type="submit"
               disabled={loading}
               className="w-full py-3 text-white rounded-lg font-medium transition text-sm"
               style={{ backgroundColor: "#2c2c2c" }}
@@ -313,9 +557,8 @@ const EnhancedAuthPage = () => {
                 "Create New Account"
               )}
             </button>
-          </div>
+          </form>
 
-          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -327,13 +570,13 @@ const EnhancedAuthPage = () => {
             </div>
           </div>
 
-          {/* Google Sign In */}
-          <button className="w-full py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition flex items-center justify-center gap-3 text-sm text-gray-700">
-            <Chrome className="w-5 h-5" />
-            Continue with Google
-          </button>
+          {/* Real Google Sign-In button renders here */}
+          <div
+            ref={googleBtnRef}
+            className="w-full flex justify-center"
+            style={{ minHeight: "44px" }}
+          />
 
-          {/* Switch Mode */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               {isLoginMode ? (
@@ -362,7 +605,6 @@ const EnhancedAuthPage = () => {
             </p>
           </div>
 
-          {/* Trial Info */}
           {!isLoginMode && (
             <div
               className="mt-6 p-4 rounded-lg"
@@ -383,7 +625,7 @@ const EnhancedAuthPage = () => {
                     className="text-sm font-medium mb-1"
                     style={{ color: "#2c2c2c" }}
                   >
-                    15-Day Free Trial Included
+                    7-Day Free Trial Included
                   </div>
                   <p className="text-xs" style={{ color: "#8b7355" }}>
                     Start your free trial today. No credit card required.
@@ -393,7 +635,6 @@ const EnhancedAuthPage = () => {
             </div>
           )}
 
-          {/* Legal Notice */}
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
               By continuing, you agree to our{" "}
@@ -408,7 +649,6 @@ const EnhancedAuthPage = () => {
           </div>
         </div>
 
-        {/* Bottom Link */}
         <div className="mt-6 text-center">
           <a
             href="/"

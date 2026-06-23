@@ -30,9 +30,8 @@ import Notepad from "./Notepad/Notepad";
 import LegalLibrary from "./LegalLibrary/LegalLibrary";
 import LegalDraftingPage from "./Drafting/LegalDraftingPage";
 import Chatbot from "../components/AssistantAi/Chatbot";
-import DashboardFeed from "../components/Articles/DashboardFeed";
-import FullArticleDetail from "../components/Articles/FullArticleDetail";
-import DashboardArticlesFeed from "../components/Articles/DashboardArticlesFeed";
+
+
 import SettingsPage from "./Setting/Settings";
 import DashboardProfileCard from "../components/user-panel/DashboardProfileCard";
 import LawyerCalendarPage from "../components/user-panel/LawyerCalendarPage";
@@ -61,7 +60,6 @@ const SIDEBAR_ITEMS = [
   { name: "Vault",                path: "/user-panel/vault",        icon: FolderLock                  },
   { name: "Jotform Agent",        path: "/user-panel/jotform-agent",icon: Bot                         },
   { name: "Notepad",              path: "/user-panel/notepad",      icon: StickyNote                  },
-  { name: "Articles",             path: "/user-panel/articles",     icon: Newspaper                   },
   { name: "Calendar",             path: "/user-panel/calendar",     icon: Calendar                    },
   { name: "Settings",             path: "/user-panel/settings",     icon: Settings                    },
 ];
@@ -69,9 +67,9 @@ const SIDEBAR_ITEMS = [
 /* Bottom nav (mobile — 5 primary items matching mockup) */
 const BOTTOM_NAV = [
   { name: "Home",    path: "/user-panel",         icon: LayoutDashboard, end: true },
-  { name: "Search",  path: "/user-panel/cases",   icon: Search                     },
+  { name: "Calendar",  path: "/user-panel/calendar",   icon: Calendar                     },
   { name: "AI Chat", path: "/user-panel/chatbot", icon: Bot,     center: true      },
-  { name: "Chat",    path: "/user-panel/articles",icon: Newspaper                  },
+  { name: "Cases",    path: "/user-panel/cases",icon: Briefcase                  },
   { name: "Account", path: "/user-panel/settings",icon: User                       },
 ];
 
@@ -312,14 +310,7 @@ function DashboardHome({ user, navigate }) {
         </button>
       </motion.div>
 
-      {/* ── Articles feed ── */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.22, ease: [0.22,1,0.36,1] }}
-      >
-        <DashboardArticlesFeed />
-      </motion.div>
+    
     </div>
   );
 }
@@ -663,10 +654,7 @@ export default function UserPanel() {
                     <Route path="drafting" element={<LegalDraftingPage />} />
                     <Route path="vault"    element={<DocumentVault />} />
                     <Route path="notepad"  element={<Notepad />} />
-                    <Route path="articles/*">
-                      <Route index element={<DashboardFeed />} />
-                      <Route path=":id" element={<FullArticleDetail />} />
-                    </Route>
+                   
                   </Routes>
                 </motion.div>
               </AnimatePresence>
