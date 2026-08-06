@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import lawgptLogo from "../assets/image/logo.png";
-import { Scale, Chrome } from "lucide-react";
+import { Scale } from "lucide-react";
 import { API_V1_BASE } from "../services/api";
 
 const GOOGLE_CLIENT_ID =
@@ -50,6 +50,11 @@ const EnhancedAuthPage = () => {
   // ─── Finish login: store data + redirect ──────────────────
   const completeAuth = useCallback(
     (data) => {
+      // A browser can previously have held another user's session. Replace all
+      // auth identity values before storing this account's token and profile.
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      localStorage.removeItem("voicelaw_user");
       const userData = { ...data.user, token: data.token };
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(userData));
@@ -177,6 +182,11 @@ const EnhancedAuthPage = () => {
           setError(
             "An account with this email already exists. Please login instead.",
           );
+          setLoading(false);
+          return;
+        }
+        if (data.errors?.needsSignup) {
+          setError("No account exists for this email. Please create an account first.");
           setLoading(false);
           return;
         }
@@ -570,12 +580,17 @@ const EnhancedAuthPage = () => {
             </div>
           </div>
 
-          {/* Real Google Sign-In button renders here */}
-          <div
-            ref={googleBtnRef}
-            className="w-full flex justify-center"
-            style={{ minHeight: "44px" }}
-          />
+          {isLoginMode ? (
+            <div
+              ref={googleBtnRef}
+              className="w-full flex justify-center"
+              style={{ minHeight: "44px" }}
+            />
+          ) : (
+            <p className="text-center text-sm text-gray-500">
+              Create and verify your account with email first. You can then use Google sign-in with the same email.
+            </p>
+          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
