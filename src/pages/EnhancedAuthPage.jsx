@@ -27,6 +27,7 @@ const EnhancedAuthPage = () => {
   const [step, setStep] = useState("form"); // 'form' | 'otp'
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [otpEmail, setOtpEmail] = useState("");
+  const [otpPurpose, setOtpPurpose] = useState("signup");
   const [resendTimer, setResendTimer] = useState(0);
   const otpRefs = useRef([]);
 
@@ -134,12 +135,17 @@ const EnhancedAuthPage = () => {
     setInfo("");
     setLoading(true);
 
+    const isPasswordlessLogin = isLoginMode && !password.trim();
     const endpoint = isLoginMode
-      ? `${API_V1_BASE}/auth/login`
+      ? isPasswordlessLogin
+        ? `${API_V1_BASE}/auth/request-login-otp`
+        : `${API_V1_BASE}/auth/login`
       : `${API_V1_BASE}/auth/register`;
 
     const payload = isLoginMode
-      ? { email, password }
+      ? isPasswordlessLogin
+        ? { email: email.trim() }
+        : { email, password }
       : {
           fullName: name.trim(),
           email: email.trim(),
@@ -170,6 +176,7 @@ const EnhancedAuthPage = () => {
         // Existing-but-unverified login attempt
         if (data.errors?.needsVerification) {
           setOtpEmail(data.errors.email || email.trim());
+          setOtpPurpose("signup");
           setStep("otp");
           setResendTimer(30);
           setError("");
@@ -201,12 +208,19 @@ const EnhancedAuthPage = () => {
         return;
       }
 
-      if (isLoginMode) {
+      if (isPasswordlessLogin) {
+        setOtpEmail(payload.email);
+        setOtpPurpose("login");
+        setStep("otp");
+        setResendTimer(30);
+        setInfo("We've sent a 6-digit sign-in code to your email.");
+      } else if (isLoginMode) {
         // Login success → token already issued
         completeAuth(data);
       } else {
         // Register success → move to OTP screen (no token yet)
         setOtpEmail(payload.email);
+        setOtpPurpose("signup");
         setStep("otp");
         setResendTimer(30);
         setInfo("We've sent a 6-digit code to your email.");
@@ -253,7 +267,7 @@ const EnhancedAuthPage = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_V1_BASE}/auth/verify-otp`, {
+      const res = await fetch(`${API_V1_BASE}/auth/${otpPurpose === "login" ? "verify-login-otp" : "verify-otp"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: otpEmail, otp: code }),
@@ -278,7 +292,7 @@ const EnhancedAuthPage = () => {
     setError("");
     setInfo("");
     try {
-      const res = await fetch(`${API_V1_BASE}/auth/resend-otp`, {
+      const res = await fetch(`${API_V1_BASE}/auth/${otpPurpose === "login" ? "request-login-otp" : "resend-otp"}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: otpEmail }),
@@ -477,14 +491,14 @@ const EnhancedAuthPage = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                  Password <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
+                placeholder="Enter your password"
                   className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 text-sm"
                   style={{ "--tw-ring-color": "#8b7355" }}
                 />
@@ -496,6 +510,9 @@ const EnhancedAuthPage = () => {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
+              {isLoginMode && (
+                <p className="mt-1 text-xs text-gray-500">Leave password empty to receive a secure login code by email.</p>
+              )}
             </div>
 
             {!isLoginMode && (
