@@ -1,25 +1,29 @@
-// components/NetflixFooter.jsx
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import "../../styles/Footer.css";
 
 const Footer = () => {
   const [language, setLanguage] = useState("English");
+  const [email, setEmail] = useState("");
 
   return (
     <footer className="netflix-footer">
       <div className="footer-content">
         <div className="footer-top">
           <p className="footer-text">
-            Ready to get legal help? Enter your email to consult with our
-            experts.
+            Ready to get legal help? Enter your email to get started.
           </p>
           <div className="footer-email-form">
             <input
               type="email"
               placeholder="Email address"
               className="footer-email-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
-            <button className="footer-cta-button">Get Started &gt;</button>
+            <Link to="/auth/register" className="footer-cta-button">
+              Get Started &gt;
+            </Link>
           </div>
         </div>
 
@@ -30,60 +34,33 @@ const Footer = () => {
 
           <div className="footer-links-grid">
             <div className="footer-link-column">
-              <a href="#" className="footer-link">
-                FAQ
-              </a>
-              <a href="#" className="footer-link">
-                Investor Relations
-              </a>
-              <a href="#" className="footer-link">
-                Privacy
-              </a>
-              <a href="#" className="footer-link">
-                Speed Test
-              </a>
+              <Link to="/faq" className="footer-link">FAQ</Link>
+              <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
+              <Link to="/terms-and-conditions" className="footer-link">Terms & Conditions</Link>
+              <Link to="/refund-policy" className="footer-link">Refund Policy</Link>
             </div>
 
             <div className="footer-link-column">
-              <a href="#" className="footer-link">
-                Help Center
-              </a>
-              <a href="#" className="footer-link">
-                Jobs
-              </a>
-              <a href="#" className="footer-link">
-                Cookie Preferences
-              </a>
-              <a href="#" className="footer-link">
-                Legal Notices
-              </a>
+              <Link to="/contact" className="footer-link">Help Center</Link>
+              <Link to="/contact" className="footer-link">Contact Us</Link>
+              <Link to="/ownership" className="footer-link">Ownership Statement</Link>
+              <Link to="/about" className="footer-link">About Us</Link>
             </div>
 
             <div className="footer-link-column">
-              <a href="#" className="footer-link">
-                Account
-              </a>
-              <a href="#" className="footer-link">
-                Ways to Consult
-              </a>
-              <a href="#" className="footer-link">
-                Corporate Information
-              </a>
-              <a href="#" className="footer-link">
-                Only on Lawyers
-              </a>
+              <Link to="/auth/register" className="footer-link">Create Account</Link>
+              <Link to="/pricing" className="footer-link">Pricing & Plans</Link>
+              <Link to="/features" className="footer-link">Features</Link>
+              <Link to="/auth/login" className="footer-link">Login</Link>
             </div>
 
             <div className="footer-link-column">
-              <a href="#" className="footer-link">
-                Media Center
-              </a>
-              <a href="#" className="footer-link">
-                Terms of Use
-              </a>
-              <a href="#" className="footer-link">
-                Contact Us
-              </a>
+              <Link to="/articles" className="footer-link">Legal Articles</Link>
+              <Link to="/terms-and-conditions" className="footer-link">Legal Notices</Link>
+              <Link to="/privacy-policy" className="footer-link">Cookie Policy</Link>
+              <span className="footer-link" style={{opacity:0.5, cursor:'default'}}>
+                Voice of Law © {new Date().getFullYear()}
+              </span>
             </div>
           </div>
         </div>
@@ -99,21 +76,17 @@ const Footer = () => {
             >
               <option value="English">English</option>
               <option value="Urdu">Urdu</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Arabic">Arabic</option>
             </select>
           </div>
 
-          <p className="footer-country">Lawyers Pakistan</p>
+          <p className="footer-country">Voice of Law — Pakistan</p>
 
           <div className="footer-legal">
             <p className="captcha-notice">
-              This page is protected by Google reCAPTCHA to ensure you're not a
-              bot.{" "}
-              <a href="#" className="learn-more-link">
+              This page is protected by Google reCAPTCHA to ensure you're not a bot.{" "}
+              <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer" className="learn-more-link">
                 Learn more
-              </a>
-              .
+              </a>.
             </p>
           </div>
         </div>

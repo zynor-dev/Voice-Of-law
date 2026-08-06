@@ -1,4 +1,4 @@
-// client/src/context/AuthContext.jsx — Fresh user data always verified with backend
+// client/src/context/AuthContext.jsx - ABSOLUTE FINAL FIX
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_V1_BASE } from "../services/api";
@@ -6,68 +6,29 @@ import { API_V1_BASE } from "../services/api";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // true until we've verified with backend
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("voicelaw_user"));
+    } catch {
+      return null;
+    }
+  });
   const navigate = useNavigate();
 
-  // ─── On app load: ALWAYS verify token with backend ──────────
-  // This guarantees the displayed user always matches the
-  // person who is actually logged in on THIS device right now —
-  // never a stale/cached user from a previous session.
   useEffect(() => {
-    const verifySession = async () => {
-      const token = localStorage.getItem("token");
+    if (user) {
+      localStorage.setItem("voicelaw_user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("voicelaw_user");
+    }
+  }, [user]);
 
-      if (!token) {
-        clearAllUserStorage();
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`${API_V1_BASE}/auth/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!res.ok) {
-          // Token invalid/expired — force clean logout
-          clearAllUserStorage();
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        const data = await res.json();
-        const freshUser = { ...data.user, token };
-
-        // Overwrite any stale cached data with the verified, fresh user
-        localStorage.setItem("user", JSON.stringify(freshUser));
-        localStorage.setItem("voicelaw_user", JSON.stringify(freshUser));
-        setUser(freshUser);
-      } catch (err) {
-        console.error("Session verification failed:", err);
-        clearAllUserStorage();
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifySession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const clearAllUserStorage = () => {
+  const login = async (email, password) => {
+    // ✅ CRITICAL: Clear ALL old user data BEFORE login
+    console.log("🔄 Clearing old user data before login...");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     localStorage.removeItem("voicelaw_user");
-  };
-
-  const login = async (email, password) => {
-    // Always clear old data BEFORE attempting a new login —
-    // prevents any chance of showing a previous user's info.
-    clearAllUserStorage();
 
     const res = await fetch(`${API_V1_BASE}/auth/login`, {
       method: "POST",
@@ -81,14 +42,25 @@ export function AuthProvider({ children }) {
     }
 
     const data = await res.json();
-    const userData = { ...data.user, token: data.token };
 
+    console.log("✅ Login response:", data.user);
+
+    // ✅ Store the NEW user data
+    const userData = {
+      ...data.user,
+      token: data.token,
+    };
+
+    // ✅ Store in ALL possible localStorage keys
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("voicelaw_user", JSON.stringify(userData));
 
+    console.log("✅ Stored new user data in localStorage");
+
     setUser(userData);
 
+    // ✅ Navigate to correct routes
     if (data.user.role === "admin") {
       navigate("/dashboard", { replace: true });
     } else {
@@ -99,9 +71,21 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    clearAllUserStorage();
+    console.log("🔄 Logging out and clearing ALL user data...");
+
+    // ✅ Clear ALL localStorage items
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("voicelaw_user");
+
+    // ✅ Also clear any other cached data
+    localStorage.clear();
+
     setUser(null);
+
     navigate("/", { replace: true });
+
+    console.log("✅ Logout complete");
   };
 
   return (
@@ -112,7 +96,6 @@ export function AuthProvider({ children }) {
         updateUser: (next) => setUser(next),
         login,
         logout,
-        loading, // components can show a spinner until session check finishes
       }}
     >
       {children}
