@@ -6,7 +6,7 @@ import { Sparkles, ArrowRight, PlayCircle } from "lucide-react";
 
 // TODO: apni actual mockup images yahan daalein
 import phoneMockup from "../../assets/image/mockups/Hero.png";
-import dashboardScreen from "../../assets/image/mockups/dashboard-screenshot.png";
+import dashboardScreen from "../../assets/image/mockups/Hero.png";
 
 const chips = [
   { label: "AI Research", pos: "-left-4 top-[20%]" },
