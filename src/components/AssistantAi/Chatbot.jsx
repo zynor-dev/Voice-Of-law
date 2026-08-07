@@ -96,6 +96,18 @@ const MenuIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M18 6L6 18M6 6L18 18"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 // ─── Markdown-like renderer ────────────────────────────────────
 function renderMessageText(text) {
   if (!text) return null;
@@ -110,7 +122,7 @@ function renderMessageText(text) {
         <h3
           key={i}
           style={{
-            color: "#c9a84c",
+            color: "#a8842f",
             fontSize: "0.85rem",
             fontWeight: 700,
             margin: "10px 0 4px",
@@ -126,7 +138,7 @@ function renderMessageText(text) {
         <h2
           key={i}
           style={{
-            color: "#c9a84c",
+            color: "#a8842f",
             fontSize: "0.95rem",
             fontWeight: 700,
             margin: "12px 0 5px",
@@ -152,7 +164,7 @@ function renderMessageText(text) {
             paddingLeft: "4px",
           }}
         >
-          <span style={{ color: "#c9a84c", marginTop: "1px", flexShrink: 0 }}>
+          <span style={{ color: "#a8842f", marginTop: "1px", flexShrink: 0 }}>
             ›
           </span>
           <span>{formatInline(line.slice(2))}</span>
@@ -172,7 +184,7 @@ function renderMessageText(text) {
         >
           <span
             style={{
-              color: "#c9a84c",
+              color: "#a8842f",
               fontWeight: 600,
               minWidth: "18px",
               flexShrink: 0,
@@ -202,7 +214,7 @@ function formatInline(text) {
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={i} style={{ color: "#e8d5a3" }}>
+        <strong key={i} style={{ color: "#8b6f1f" }}>
           {part.slice(2, -2)}
         </strong>
       );
@@ -237,6 +249,8 @@ const TypingDots = () => (
   </div>
 );
 
+const MOBILE_BREAKPOINT = 768;
+
 // ─── Main Chatbot Component ───────────────────────────────────
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
@@ -244,10 +258,31 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640);
+  const [isMobile, setIsMobile] = useState(
+    () => window.innerWidth <= MOBILE_BREAKPOINT,
+  );
+  const [sidebarOpen, setSidebarOpen] = useState(
+    () => window.innerWidth > MOBILE_BREAKPOINT,
+  );
   const [loadingHistory, setLoadingHistory] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Keep mobile/desktop state in sync with viewport, and give the
+  // sidebar sensible default behavior when the breakpoint is crossed.
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= MOBILE_BREAKPOINT;
+      setIsMobile((prevMobile) => {
+        if (prevMobile !== mobile) {
+          setSidebarOpen(!mobile); // open on desktop, closed on mobile
+        }
+        return mobile;
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -271,6 +306,10 @@ export default function Chatbot() {
     fetchConversations();
   }, [fetchConversations]);
 
+  const closeSidebarOnMobile = () => {
+    if (isMobile) setSidebarOpen(false);
+  };
+
   // Load a specific conversation
   const loadConversation = async (id) => {
     try {
@@ -288,6 +327,8 @@ export default function Chatbot() {
       }
     } catch (err) {
       console.error("Failed to load conversation:", err);
+    } finally {
+      closeSidebarOnMobile();
     }
   };
 
@@ -296,7 +337,8 @@ export default function Chatbot() {
     setMessages([]);
     setConversationId(null);
     setInput("");
-    inputRef.current?.focus();
+    closeSidebarOnMobile();
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   // Delete conversation
@@ -332,6 +374,7 @@ export default function Chatbot() {
     if (!text || loading) return;
 
     setInput("");
+    if (inputRef.current) inputRef.current.style.height = "auto";
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setLoading(true);
 
@@ -375,16 +418,6 @@ export default function Chatbot() {
     }
   };
 
-  const formatTime = (d) => {
-    const date = new Date(d);
-    const now = new Date();
-    const diff = now - date;
-    if (diff < 60000) return "Just now";
-    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return `${Math.floor(diff / 86400000)}d ago`;
-  };
-
   return (
     <>
       <style>{`
@@ -393,24 +426,25 @@ export default function Chatbot() {
         .vol-chatbot * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .vol-chatbot {
+          position: relative;
           display: flex;
           height: 100%;
           min-height: 0;
-          background: #f5f5f7;
+          background: #f5f5f2;
           font-family: 'DM Sans', sans-serif;
           color: #24242a;
           overflow: hidden;
         }
 
-        /* Sidebar */
+        /* ── Sidebar (chat history) ─────────────────────────── */
         .vol-chat-sidebar {
           width: 270px;
           min-width: 270px;
-          background: #111113;
-          border-right: 1px solid #1e1e22;
+          background: #ffffff;
+          border-right: 1px solid #e6e2d8;
           display: flex;
           flex-direction: column;
-          transition: width 0.3s ease, min-width 0.3s ease;
+          transition: width 0.25s ease, min-width 0.25s ease, transform 0.25s ease;
           overflow: hidden;
         }
         .vol-chat-sidebar.closed {
@@ -420,16 +454,25 @@ export default function Chatbot() {
         }
 
         .vol-chat-sidebar-top {
-          padding: 20px 16px 12px;
-          border-bottom: 1px solid #1e1e22;
+          padding: 18px 16px 12px;
+          border-bottom: 1px solid #e6e2d8;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .vol-sidebar-top-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
         }
 
         .vol-logo {
           display: flex;
           align-items: center;
           gap: 10px;
-          margin-bottom: 14px;
-          color: #c9a84c;
+          color: #a8842f;
         }
         .vol-logo-text {
           font-family: 'Cormorant Garamond', serif;
@@ -437,7 +480,22 @@ export default function Chatbot() {
           font-weight: 600;
           letter-spacing: 0.02em;
           white-space: nowrap;
+          color: #24242a;
         }
+
+        .vol-sidebar-close {
+          display: none;
+          background: none;
+          border: none;
+          color: #746f66;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 6px;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+        .vol-sidebar-close:hover { color: #a8842f; background: #f7f3ea; }
 
         .vol-new-btn {
           width: 100%;
@@ -445,7 +503,7 @@ export default function Chatbot() {
           background: linear-gradient(135deg, #c9a84c 0%, #a8882e 100%);
           border: none;
           border-radius: 8px;
-          color: #0d0d0f;
+          color: #1a1408;
           font-family: 'DM Sans', sans-serif;
           font-size: 0.82rem;
           font-weight: 600;
@@ -465,19 +523,25 @@ export default function Chatbot() {
           overflow-y: auto;
           padding: 12px 8px;
           scrollbar-width: thin;
-          scrollbar-color: #2a2a30 transparent;
+          scrollbar-color: #d8d1c2 transparent;
         }
-        .vol-history::-webkit-scrollbar { width: 4px; }
-        .vol-history::-webkit-scrollbar-thumb { background: #2a2a30; border-radius: 2px; }
+        .vol-chat-history::-webkit-scrollbar { width: 4px; }
+        .vol-chat-history::-webkit-scrollbar-thumb { background: #d8d1c2; border-radius: 2px; }
 
         .vol-history-label {
           font-size: 0.65rem;
-          font-weight: 600;
-          color: #4a4a55;
+          font-weight: 700;
+          color: #948e80;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           padding: 4px 8px 8px;
           white-space: nowrap;
+        }
+
+        .vol-empty-hint {
+          padding: 12px 8px;
+          color: #948e80;
+          font-size: 0.75rem;
         }
 
         .vol-conv-item {
@@ -489,22 +553,23 @@ export default function Chatbot() {
           cursor: pointer;
           transition: background 0.15s;
           margin-bottom: 2px;
+          border-left: 2px solid transparent;
         }
-        .vol-conv-item:hover { background: #1a1a1f; }
-        .vol-conv-item.active { background: #1a1a1f; border-left: 2px solid #c9a84c; }
+        .vol-conv-item:hover { background: #f7f3ea; }
+        .vol-conv-item.active { background: #f7f3ea; border-left: 2px solid #c9a84c; }
 
-        .vol-conv-icon { color: #3a3a45; flex-shrink: 0; }
-        .vol-conv-item.active .vol-conv-icon { color: #c9a84c; }
+        .vol-conv-icon { color: #b3ac9d; flex-shrink: 0; }
+        .vol-conv-item.active .vol-conv-icon { color: #a8842f; }
 
         .vol-conv-title {
-          font-size: 0.78rem;
-          color: #9090a0;
+          font-size: 0.8rem;
+          color: #56514a;
           flex: 1;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        .vol-conv-item.active .vol-conv-title { color: #e8e0d0; }
+        .vol-conv-item.active .vol-conv-title { color: #24242a; font-weight: 600; }
 
         .vol-conv-actions {
           display: none;
@@ -517,7 +582,7 @@ export default function Chatbot() {
         .vol-conv-action-btn {
           background: none;
           border: none;
-          color: #4a4a55;
+          color: #a39c8c;
           cursor: pointer;
           padding: 3px;
           border-radius: 4px;
@@ -525,49 +590,58 @@ export default function Chatbot() {
           align-items: center;
           transition: color 0.15s;
         }
-        .vol-conv-action-btn:hover { color: #c9a84c; }
-        .vol-conv-action-btn.bookmarked { color: #c9a84c; display: flex !important; }
+        .vol-conv-action-btn:hover { color: #a8842f; }
+        .vol-conv-action-btn.bookmarked { color: #a8842f; display: flex !important; }
 
-        /* Main area */
+        /* ── Mobile backdrop ─────────────────────────────────── */
+        .vol-backdrop {
+          display: none;
+        }
+
+        /* ── Main area ───────────────────────────────────────── */
         .vol-chat-main {
           flex: 1;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          background: #0d0d0f;
+          background: #ffffff;
+          min-width: 0;
         }
 
         /* Header */
         .vol-header {
           padding: 14px 20px;
-          border-bottom: 1px solid #1a1a1f;
+          border-bottom: 1px solid #e6e2d8;
           display: flex;
           align-items: center;
           gap: 12px;
-          background: #0d0d0f;
+          background: #ffffff;
           flex-shrink: 0;
         }
 
         .vol-menu-btn {
           background: none;
           border: none;
-          color: #5a5a65;
+          color: #56514a;
           cursor: pointer;
           padding: 4px;
           border-radius: 6px;
           display: flex;
           align-items: center;
-          transition: color 0.15s;
+          transition: color 0.15s, background 0.15s;
           flex-shrink: 0;
         }
-        .vol-menu-btn:hover { color: #c9a84c; }
+        .vol-menu-btn:hover { color: #a8842f; background: #f7f3ea; }
 
         .vol-header-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.1rem;
           font-weight: 600;
-          color: #c9a84c;
+          color: #24242a;
           letter-spacing: 0.03em;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
 
         .vol-status-dot {
@@ -586,10 +660,11 @@ export default function Chatbot() {
           overflow-y: auto;
           padding: 24px 20px;
           scrollbar-width: thin;
-          scrollbar-color: #1e1e22 transparent;
+          scrollbar-color: #e6e2d8 transparent;
+          background: #f9f8f5;
         }
         .vol-messages::-webkit-scrollbar { width: 5px; }
-        .vol-messages::-webkit-scrollbar-thumb { background: #1e1e22; border-radius: 3px; }
+        .vol-messages::-webkit-scrollbar-thumb { background: #e6e2d8; border-radius: 3px; }
 
         /* Empty state */
         .vol-empty {
@@ -599,19 +674,20 @@ export default function Chatbot() {
           justify-content: center;
           height: 100%;
           gap: 16px;
-          color: #3a3a45;
+          color: #a39c8c;
+          text-align: center;
         }
-        .vol-empty-icon { color: #2a2a35; }
+        .vol-empty-icon { color: #c9a84c; }
         .vol-empty h2 {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.6rem;
           font-weight: 500;
-          color: #4a4a55;
+          color: #24242a;
           letter-spacing: 0.02em;
         }
         .vol-empty p {
-          font-size: 0.82rem;
-          color: #3a3a45;
+          font-size: 0.85rem;
+          color: #746f66;
           text-align: center;
           max-width: 320px;
           line-height: 1.6;
@@ -626,20 +702,20 @@ export default function Chatbot() {
           margin-top: 8px;
         }
         .vol-suggestion {
-          background: #111113;
-          border: 1px solid #1e1e22;
+          background: #ffffff;
+          border: 1px solid #e6e2d8;
           border-radius: 8px;
           padding: 8px 14px;
-          font-size: 0.75rem;
-          color: #6a6a78;
+          font-size: 0.76rem;
+          color: #56514a;
           cursor: pointer;
           transition: all 0.2s;
           text-align: center;
         }
         .vol-suggestion:hover {
-          border-color: #c9a84c44;
-          color: #c9a84c;
-          background: #c9a84c0a;
+          border-color: #c9a84c;
+          color: #8b6f1f;
+          background: #fbf6e9;
         }
 
         /* Message bubbles */
@@ -664,76 +740,74 @@ export default function Chatbot() {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.7rem;
+          font-size: 0.68rem;
           font-weight: 700;
           margin-top: 2px;
         }
         .vol-avatar.ai {
-          background: linear-gradient(135deg, #1e1a12, #2a2310);
-          border: 1px solid #c9a84c44;
-          color: #c9a84c;
+          background: #fbf3df;
+          border: 1px solid #e8d5a3;
+          color: #8b6f1f;
         }
         .vol-avatar.user-av {
-          background: linear-gradient(135deg, #1a2a3a, #0f1e2e);
-          border: 1px solid #4a90d944;
-          color: #7ab8e8;
-          font-size: 0.65rem;
+          background: #eaf1fb;
+          border: 1px solid #c6dbf2;
+          color: #2f6aa8;
         }
 
         .vol-bubble {
           max-width: min(600px, 75%);
           padding: 12px 16px;
           border-radius: 12px;
-          font-size: 0.84rem;
+          font-size: 0.87rem;
           line-height: 1.6;
         }
         .vol-msg.user .vol-bubble {
-          background: #1a2535;
-          border: 1px solid #243550;
-          color: #d0e8ff;
+          background: #eaf1fb;
+          border: 1px solid #cfe0f2;
+          color: #1c3a56;
           border-radius: 12px 12px 2px 12px;
         }
         .vol-msg.assistant .vol-bubble {
-          background: #111113;
-          border: 1px solid #1e1e22;
-          color: #d8d0c0;
+          background: #ffffff;
+          border: 1px solid #e6e2d8;
+          color: #2c2c2c;
           border-radius: 2px 12px 12px 12px;
         }
         .vol-msg.assistant .vol-bubble.error {
-          background: #1a0f0f;
-          border-color: #3a1515;
-          color: #c08080;
+          background: #fdf1f0;
+          border-color: #f0c9c6;
+          color: #a13d36;
         }
 
         .vol-sources {
           margin-top: 10px;
           padding-top: 8px;
-          border-top: 1px solid #2a2a2f;
+          border-top: 1px solid #eee9dd;
         }
         .vol-sources-label {
           font-size: 0.68rem;
-          color: #4a4a55;
-          font-weight: 600;
+          color: #948e80;
+          font-weight: 700;
           letter-spacing: 0.08em;
           text-transform: uppercase;
           margin-bottom: 5px;
         }
         .vol-source-tag {
           display: inline-block;
-          background: #1a1a0f;
-          border: 1px solid #c9a84c33;
+          background: #fbf3df;
+          border: 1px solid #e8d5a3;
           border-radius: 4px;
           padding: 2px 8px;
           font-size: 0.68rem;
-          color: #c9a84c;
+          color: #8b6f1f;
           margin: 2px 3px 2px 0;
         }
 
-        /* Input area */
+        /* ── Input area — single, clean box (no nested box) ──── */
         .vol-input-wrap {
           padding: 14px 20px 18px;
-          background: #0d0d0f;
-          border-top: 1px solid #1a1a1f;
+          background: #ffffff;
           flex-shrink: 0;
         }
 
@@ -741,37 +815,41 @@ export default function Chatbot() {
           display: flex;
           align-items: flex-end;
           gap: 10px;
-          background: #111113;
-          border: 1px solid #222228;
-          border-radius: 12px;
-          padding: 10px 12px;
-          transition: border-color 0.2s;
+          background: #ffffff;
+          border: 1.5px solid #d8d1c2;
+          border-radius: 14px;
+          padding: 10px 10px 10px 16px;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          box-shadow: 0 1px 2px rgba(20, 18, 10, 0.03);
         }
-        .vol-input-box:focus-within { border-color: #c9a84c55; }
+        .vol-input-box:focus-within {
+          border-color: #c9a84c;
+          box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+        }
 
         .vol-textarea {
           flex: 1;
           background: none;
           border: none;
           outline: none;
-          color: #e8e0d0;
+          color: #24242a;
           font-family: 'DM Sans', sans-serif;
-          font-size: 0.84rem;
+          font-size: 0.9rem;
           resize: none;
           max-height: 120px;
-          min-height: 22px;
+          min-height: 24px;
           line-height: 1.5;
           scrollbar-width: thin;
         }
-        .vol-textarea::placeholder { color: #3a3a45; }
+        .vol-textarea::placeholder { color: #9a948a; }
 
         .vol-send-btn {
           width: 36px;
           height: 36px;
-          border-radius: 8px;
+          border-radius: 10px;
           background: linear-gradient(135deg, #c9a84c, #a8882e);
           border: none;
-          color: #0d0d0f;
+          color: #1a1408;
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -784,7 +862,7 @@ export default function Chatbot() {
 
         .vol-input-hint {
           font-size: 0.68rem;
-          color: #2a2a35;
+          color: #a39c8c;
           text-align: center;
           margin-top: 8px;
         }
@@ -794,46 +872,80 @@ export default function Chatbot() {
           40% { transform: scale(1); opacity: 1; }
         }
 
-        /* Dashboard-aligned light surface: keeps the existing gold brand, without a dark chat screen. */
-        .vol-chatbot { background: #f5f5f7; color: #24242a; }
-        .vol-chat-sidebar { background: #fff; border-right-color: #e6e2d8; }
-        .vol-chat-sidebar-top { border-bottom-color: #e6e2d8; }
-        .vol-chat-history { scrollbar-color: #d8d1c2 transparent; }
-        .vol-chat-main, .vol-header, .vol-input-wrap { background: #fff; }
-        .vol-header, .vol-input-wrap { border-color: #e6e2d8; }
-        .vol-header-title { color: #24242a; }
-        .vol-menu-btn { color: #625d68; }
-        .vol-messages { background: #f5f5f7; }
-        .vol-empty h2 { color: #24242a; }
-        .vol-empty p { color: #746f7c; }
-        .vol-suggestion, .vol-bubble { background: #fff; border-color: #e6e2d8; color: #302d35; }
-        .vol-msg.assistant .vol-bubble { background: #fff; border-color: #e6e2d8; color: #302d35; }
-        .vol-conv-item:hover, .vol-conv-item.active { background: #f7f3ea; }
-        .vol-conv-title { color: #625d68; }
-        .vol-conv-item.active .vol-conv-title { color: #24242a; }
-        .vol-input-box { background: #fff; border-color: #d8d1c2; }
-        .vol-textarea { color: #24242a; }
-        .vol-textarea::placeholder { color: #8d8792; }
-        .vol-input-hint { color: #8d8792; }
+        /* ══════════════════ MOBILE (drawer sidebar) ══════════════════ */
+        @media (max-width: 768px) {
+          .vol-chatbot { overflow: visible; }
 
-        /* Mobile */
-        @media (max-width: 640px) {
-          .vol-chat-sidebar { position: absolute; z-index: 50; height: 100%; box-shadow: 12px 0 30px rgba(0,0,0,.12); }
-          .vol-chat-sidebar.closed { width: 0; }
-          .vol-bubble { max-width: 88%; }
+          .vol-chat-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 82vw;
+            max-width: 300px;
+            min-width: 0;
+            z-index: 60;
+            box-shadow: 14px 0 34px rgba(20, 18, 10, 0.18);
+            transform: translateX(-100%);
+          }
+          .vol-chat-sidebar:not(.closed) { transform: translateX(0); }
+          .vol-chat-sidebar.closed { width: 82vw; max-width: 300px; border-right: 1px solid #e6e2d8; }
+
+          .vol-sidebar-close { display: flex; }
+
+          .vol-backdrop.open {
+            display: block;
+            position: fixed;
+            inset: 0;
+            background: rgba(20, 18, 10, 0.35);
+            z-index: 55;
+            animation: fadeIn 0.2s ease;
+          }
+          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
           .vol-header { padding: 12px 14px; }
+          .vol-header-title { font-size: 1rem; }
+
           .vol-messages { padding: 16px 14px; }
-          .vol-input-wrap { padding: 10px 12px 12px; }
+          .vol-bubble { max-width: 86%; font-size: 0.85rem; }
+
+          .vol-suggestions { max-width: 100%; }
+          .vol-suggestion { font-size: 0.72rem; padding: 7px 12px; }
+
+          .vol-input-wrap { padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+          .vol-input-box { border-radius: 12px; padding: 8px 8px 8px 14px; }
+          .vol-textarea { font-size: 16px; } /* prevents iOS auto-zoom on focus */
+          .vol-send-btn { width: 34px; height: 34px; }
+        }
+
+        @media (max-width: 380px) {
+          .vol-empty h2 { font-size: 1.35rem; }
+          .vol-empty p { font-size: 0.78rem; }
         }
       `}</style>
 
       <div className="vol-chatbot">
+        {/* Mobile backdrop */}
+        <div
+          className={`vol-backdrop ${isMobile && sidebarOpen ? "open" : ""}`}
+          onClick={() => setSidebarOpen(false)}
+        />
+
         {/* Sidebar */}
         <div className={`vol-chat-sidebar ${sidebarOpen ? "" : "closed"}`}>
           <div className="vol-chat-sidebar-top">
-            <div className="vol-logo">
-              <ScaleIcon />
-              <span className="vol-logo-text">Voice of Law</span>
+            <div className="vol-sidebar-top-row">
+              <div className="vol-logo">
+                <ScaleIcon />
+                <span className="vol-logo-text">Voice of Law</span>
+              </div>
+              <button
+                className="vol-sidebar-close"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close menu"
+              >
+                <CloseIcon />
+              </button>
             </div>
             <button className="vol-new-btn" onClick={startNewChat}>
               <PlusIcon />
@@ -843,17 +955,7 @@ export default function Chatbot() {
 
           <div className="vol-chat-history">
             <div className="vol-history-label">Recent Chats</div>
-            {loadingHistory && (
-              <div
-                style={{
-                  padding: "12px 8px",
-                  color: "#3a3a45",
-                  fontSize: "0.75rem",
-                }}
-              >
-                Loading...
-              </div>
-            )}
+            {loadingHistory && <div className="vol-empty-hint">Loading...</div>}
             {conversations.map((conv) => (
               <div
                 key={conv._id}
@@ -885,15 +987,7 @@ export default function Chatbot() {
               </div>
             ))}
             {!loadingHistory && conversations.length === 0 && (
-              <div
-                style={{
-                  padding: "12px 8px",
-                  color: "#3a3a45",
-                  fontSize: "0.75rem",
-                }}
-              >
-                No conversations yet.
-              </div>
+              <div className="vol-empty-hint">No conversations yet.</div>
             )}
           </div>
         </div>
@@ -905,7 +999,9 @@ export default function Chatbot() {
             <button
               className="vol-menu-btn"
               onClick={() => setSidebarOpen((o) => !o)}
-              aria-label="Open chat history"
+              aria-label={
+                sidebarOpen ? "Close chat history" : "Open chat history"
+              }
             >
               <MenuIcon />
             </button>
@@ -985,7 +1081,7 @@ export default function Chatbot() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
+          {/* Input — single box, no nested wrapper look */}
           <div className="vol-input-wrap">
             <div className="vol-input-box">
               <textarea
@@ -1009,6 +1105,9 @@ export default function Chatbot() {
               >
                 <SendIcon />
               </button>
+            </div>
+            <div className="vol-input-hint">
+              Press Enter to send · Shift+Enter for new line
             </div>
           </div>
         </div>
