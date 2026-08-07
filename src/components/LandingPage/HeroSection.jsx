@@ -6,7 +6,7 @@ import { Sparkles, ArrowRight, PlayCircle } from "lucide-react";
 
 // TODO: apni actual mockup images yahan daalein
 import phoneMockup from "../../assets/image/mockups/Hero.png";
-import dashboardScreen from "../../assets/image/mockups/Herso.png";
+
 
 const chips = [
   { label: "AI Research", pos: "-left-4 top-[20%]" },
@@ -120,12 +120,7 @@ const HeroSection = () => {
                 className="w-full h-auto drop-shadow-2xl select-none pointer-events-none"
                 draggable={false}
               />
-              <img
-                src={dashboardScreen}
-                alt="Dashboard preview"
-                className="absolute top-[6%] left-[9%] w-[82%] h-auto rounded-[1.4rem] pointer-events-none select-none"
-                draggable={false}
-              />
+              
             </div>
 
             {chips.map((c, i) => (
