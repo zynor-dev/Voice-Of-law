@@ -1,4 +1,4 @@
-// EditCase.jsx - Fixed with Proper Free Trial Access
+// EditCase.jsx
 import React, { useState, useEffect } from "react";
 import {
   FaArrowLeft,
@@ -8,16 +8,12 @@ import {
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { casesAPI } from "../../services/api";
-import SubscriptionBlocker from "../../components/SubscriptionBlocker";
-import useSubscriptionCheck from "../../hooks/useSubscriptionCheck";
 import "../Style/AddCase.css";
 
 const EditCase = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { caseData } = location.state || {};
-  const { canAccessFeature, subscriptionStatus } = useSubscriptionCheck();
-  const [showBlocker, setShowBlocker] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -97,12 +93,6 @@ const EditCase = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // ✅ CHECK: Block only if BOTH trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     setLoading(true);
     setError("");
 
@@ -180,25 +170,6 @@ const EditCase = () => {
 
   return (
     <div className="add-case-container">
-      {/* ✅ Show trial status banner if on trial */}
-      {subscriptionStatus?.isTrialActive && (
-        <div
-          className="trial-status-banner"
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            padding: "0.75rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-            textAlign: "center",
-            fontSize: "0.9rem",
-          }}
-        >
-          🎉 Free Trial Active - {subscriptionStatus.daysRemaining} days
-          remaining
-        </div>
-      )}
-
       {error && (
         <div className="error-message">
           <FaExclamationTriangle /> {error}
@@ -449,13 +420,6 @@ const EditCase = () => {
           </div>
         </div>
       </form>
-
-      {/* Subscription Blocker - Only shows when trial expired AND not subscribed */}
-      <SubscriptionBlocker
-        isOpen={showBlocker}
-        onClose={() => setShowBlocker(false)}
-        featureName="Edit Case"
-      />
     </div>
   );
 };

@@ -88,12 +88,6 @@ export default function DashboardProfileCard({ user, setUser }) {
 
   const display = freshUser || user;
   const avatarUrl = useMemo(() => resolveAvatarUrl(display), [display]);
-  const isPaid =
-    display?.role === "admin" ||
-    (display?.subscription?.plan === "premium" &&
-      display?.subscription?.isActive) ||
-    display?.isSubscribed ||
-    display?.isPaid;
 
   const loc = formatLocation(display);
   const chamber =
@@ -268,30 +262,6 @@ export default function DashboardProfileCard({ user, setUser }) {
               <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-none">
                 {display.fullName || display.email?.split("@")[0] || "User"}
               </h1>
-              {isPaid && (
-                <span
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-                  style={{
-                    background: G_DIM,
-                    color: G,
-                    border: `1px solid ${G_RING}`,
-                  }}
-                >
-                  <FaCrown style={{ fontSize: "8px" }} /> Premium
-                </span>
-              )}
-              {!isPaid && (
-                <span
-                  className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                  style={{
-                    background: "rgba(255,255,255,0.06)",
-                    color: "rgba(255,255,255,0.4)",
-                    border: "1px solid rgba(255,255,255,0.10)",
-                  }}
-                >
-                  Trial
-                </span>
-              )}
             </div>
 
             {/* Role / bar number */}

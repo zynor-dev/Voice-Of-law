@@ -9,8 +9,6 @@ import {
   FaChevronUp,
 } from "react-icons/fa";
 import axios from "axios";
-import SubscriptionBlocker from "../../components/SubscriptionBlocker";
-import useSubscriptionCheck from "../../hooks/useSubscriptionCheck";
 import "../Style/Notepad.css";
 
 const API_URL = "https://voiceoflaw-backend.onrender.com/api/standalone/notes";
@@ -25,10 +23,6 @@ const Notepad = () => {
   const [showAllNotes, setShowAllNotes] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [loading, setLoading] = useState(false);
-
-  // ✅ FIX: Get subscription status properly
-  const { canAccessFeature, subscriptionStatus } = useSubscriptionCheck();
-  const [showBlocker, setShowBlocker] = useState(false);
 
   // Get auth token from localStorage
   const getAuthToken = () => {
@@ -108,12 +102,6 @@ const Notepad = () => {
 
   // Handle new note creation
   const handleNewNote = () => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     const currentDate = new Date();
     const formattedDate = `${currentDate.toLocaleString("default", {
       month: "long",
@@ -133,12 +121,6 @@ const Notepad = () => {
 
   // Save new note
   const handleSaveNote = async () => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     if (newNote.title.trim() === "" || newNote.content.trim() === "") {
       alert("Please enter both title and content");
       return;
@@ -162,8 +144,7 @@ const Notepad = () => {
       } else if (error.response?.status === 403) {
         // Handle daily limit error
         alert(
-          error.response.data.error ||
-            "Daily limit reached. Upgrade to premium for unlimited notes."
+          error.response.data.error || "Daily limit reached."
         );
       } else {
         alert("Failed to save note. Please try again.");
@@ -175,12 +156,6 @@ const Notepad = () => {
 
   // Update existing note
   const handleUpdateNote = async () => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     if (
       !selectedNote ||
       selectedNote.title.trim() === "" ||
@@ -225,12 +200,6 @@ const Notepad = () => {
 
   // Delete note
   const handleDeleteNote = async () => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     if (!selectedNote) return;
 
     if (!window.confirm("Are you sure you want to delete this note?")) {
@@ -269,32 +238,6 @@ const Notepad = () => {
 
   return (
     <div className="notepad-container">
-      {/* ✅ SHOW TRIAL STATUS BANNER */}
-      {subscriptionStatus?.isTrialActive && (
-        <div
-          className="trial-status-banner"
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            padding: "0.75rem 1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-            textAlign: "center",
-            fontSize: "0.9rem",
-            fontWeight: "500",
-          }}
-        >
-          🎉 Free Trial Active - {subscriptionStatus.daysRemaining} days
-          remaining
-          {subscriptionStatus.dailyLimits?.notes && (
-            <span style={{ marginLeft: "1rem", opacity: 0.9 }}>
-              | 📝 Notes: {subscriptionStatus.dailyLimits.notes.used}/
-              {subscriptionStatus.dailyLimits.notes.limit} today
-            </span>
-          )}
-        </div>
-      )}
-
       <div className="notepad-header">
         <h2>My Notes</h2>
         <div className="notepad-search">
@@ -465,13 +408,6 @@ const Notepad = () => {
           )}
         </div>
       </div>
-
-      {/* ✅ Subscription Blocker - Only shows when trial expired AND not subscribed */}
-      <SubscriptionBlocker
-        isOpen={showBlocker}
-        onClose={() => setShowBlocker(false)}
-        featureName="Notepad"
-      />
     </div>
   );
 };

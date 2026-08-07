@@ -49,7 +49,6 @@ const Footer = () => {
 
             <div className="footer-link-column">
               <Link to="/auth/register" className="footer-link">Create Account</Link>
-              <Link to="/pricing" className="footer-link">Pricing & Plans</Link>
               <Link to="/features" className="footer-link">Features</Link>
               <Link to="/auth/login" className="footer-link">Login</Link>
             </div>

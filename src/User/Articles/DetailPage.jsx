@@ -41,7 +41,7 @@ const UpdateDetailPage = ({ update, onBack }) => {
 
           ## Getting Started
 
-          The AI Legal Research feature is available to all premium subscribers and can be accessed through the main dashboard. We've also prepared comprehensive tutorials to help you maximize this powerful tool.
+          The AI Legal Research feature is available to all registered users and can be accessed through the main dashboard. We've also prepared comprehensive tutorials to help you maximize this powerful tool.
         `,
         image: "/api/placeholder/800/400",
         tags: ['AI', 'Research', 'Innovation', 'Legal Tech'],

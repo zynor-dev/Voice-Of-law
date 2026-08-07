@@ -23,8 +23,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { casesAPI, handleApiError } from "../../services/api";
 import { motion, AnimatePresence } from "framer-motion";
-import SubscriptionBlocker from "../../components/SubscriptionBlocker";
-import useSubscriptionCheck from "../../hooks/useSubscriptionCheck";
 
 // ── Theme tokens ────────────────────────────────────────────────
 const G = "#C79F44";
@@ -107,9 +105,6 @@ export default function MyCases() {
 
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { canAccessFeature, subscriptionStatus } = useSubscriptionCheck();
-  const [showBlocker, setShowBlocker] = useState(false);
-  const [blockedAction, setBlockedAction] = useState("");
 
   const statusCounts = useMemo(
     () => ({
@@ -197,11 +192,6 @@ export default function MyCases() {
   };
 
   const handleStatusUpdate = async (caseId, newStatus, currentStatus) => {
-    if (!canAccessFeature()) {
-      setBlockedAction("Update Case Status");
-      setShowBlocker(true);
-      return;
-    }
     if (currentStatus === newStatus) return;
     try {
       setStatusUpdating((p) => ({ ...p, [caseId]: newStatus }));
@@ -239,14 +229,7 @@ export default function MyCases() {
     }
   };
 
-  const gate = (action, fn) => () => {
-    if (!canAccessFeature()) {
-      setBlockedAction(action);
-      setShowBlocker(true);
-      return;
-    }
-    fn();
-  };
+  const gate = (_action, fn) => () => fn();
 
   const formatDate = (d) => {
     if (!d) return "Not scheduled";
@@ -314,27 +297,6 @@ export default function MyCases() {
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl mx-auto space-y-5">
-      {/* ── Trial banner ──────────────────────────────────────── */}
-      {subscriptionStatus?.isTrialActive && (
-        <div
-          className="flex items-center justify-between px-4 py-3 rounded-xl"
-          style={{ background: G_DIM, border: `1px solid ${G_RING}` }}
-        >
-          <p className="text-xs font-semibold" style={{ color: G }}>
-            🎉 Free Trial — {subscriptionStatus.daysRemaining} days remaining
-          </p>
-          <button
-            onClick={() => navigate("/user-panel/subscription")}
-            className="text-[11px] font-bold px-3 py-1 rounded-lg transition"
-            style={{ background: G, color: DARK }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#d4aa55")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = G)}
-          >
-            Upgrade
-          </button>
-        </div>
-      )}
-
       {/* ── Header ────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
@@ -1117,12 +1079,6 @@ export default function MyCases() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <SubscriptionBlocker
-        isOpen={showBlocker}
-        onClose={() => setShowBlocker(false)}
-        featureName={blockedAction || "Case Management"}
-      />
     </div>
   );
 }

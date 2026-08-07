@@ -4,7 +4,6 @@ import HeroSection from "../components/LandingPage/HeroSection";
 import AIAssistantSection from "../components/LandingPage/AIAssistantSection";
 import FeaturesBentoSection from "../components/LandingPage/FeaturesBentoSection";
 import DashboardShowcase from "../components/LandingPage/DashboardShowcase";
-import PricingSection from "../components/LandingPage/PricingSection";
 
 import WhyLegal from "./Whylegal";
 import FaqPage from "./FaqPage";
@@ -18,7 +17,6 @@ const Home = () => {
       <AIAssistantSection />
       <FeaturesBentoSection />
       <DashboardShowcase />
-      <PricingSection />
       <WhyLegal />
       <FaqPage />
       <Contact />

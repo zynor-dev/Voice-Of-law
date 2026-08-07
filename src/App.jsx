@@ -24,7 +24,6 @@ import JotformAgent from "./User/JotformAgent";
 
 // Auth Pages
 import EnhancedAuthPage from "./pages/EnhancedAuthPage";
-import SubscriptionPage from "./pages/SubscriptionPage";
 import { AuthProvider } from "./context/AuthContext";
 
 // User Panel
@@ -32,7 +31,6 @@ import UserPanel from "./User/UserPanel";
 
 // Admin Panel
 import Dashboard from "./Admin/Dashboard";
-import PaymentVerification from "./components/Admin/PaymentVerification";
 
 // ============================================
 // NEW ARTICLE COMPONENTS
@@ -66,7 +64,6 @@ const MainLayout = () => {
 
           {/* Auth Routes */}
           <Route path="/auth/:mode" element={<EnhancedAuthPage />} />
-          <Route path="/subscription" element={<SubscriptionPage />} />
 
           {/* Other Public Routes */}
           <Route path="/about" element={<About />} />
@@ -101,7 +98,6 @@ const MainLayout = () => {
           {/* ======================================== */}
           <Route element={<ProtectedRoute requireAdmin={true} />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/admin/payments" element={<PaymentVerification />} />
           </Route>
         </Routes>
       </AnimatePresence>

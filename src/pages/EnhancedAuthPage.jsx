@@ -634,36 +634,6 @@ const EnhancedAuthPage = () => {
             </p>
           </div>
 
-          {!isLoginMode && (
-            <div
-              className="mt-6 p-4 rounded-lg"
-              style={{
-                backgroundColor: "#8b73551a",
-                border: "1px solid #8b735533",
-              }}
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm"
-                  style={{ backgroundColor: "#8b7355" }}
-                >
-                  ✓
-                </div>
-                <div>
-                  <div
-                    className="text-sm font-medium mb-1"
-                    style={{ color: "#2c2c2c" }}
-                  >
-                    7-Day Free Trial Included
-                  </div>
-                  <p className="text-xs" style={{ color: "#8b7355" }}>
-                    Start your free trial today. No credit card required.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-500">
               By continuing, you agree to our{" "}

@@ -1,4 +1,4 @@
-// AddCase.jsx - Fixed with Proper Free Trial Access
+// AddCase.jsx
 import React, { useState } from "react";
 import {
   FaArrowLeft,
@@ -11,14 +11,10 @@ import {
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { casesAPI } from "../../services/api";
-import SubscriptionBlocker from "../../components/SubscriptionBlocker";
-import useSubscriptionCheck from "../../hooks/useSubscriptionCheck";
 import "../Style/AddCase.css";
 
 const AddCase = () => {
   const navigate = useNavigate();
-  const { canAccessFeature, subscriptionStatus } = useSubscriptionCheck();
-  const [showBlocker, setShowBlocker] = useState(false);
   const [dailyLimitMessage, setDailyLimitMessage] = useState("");
 
   const [formData, setFormData] = useState({
@@ -92,12 +88,6 @@ const AddCase = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ CHECK: Block only if BOTH trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
 
     setLoading(true);
     setError("");
@@ -173,8 +163,7 @@ const AddCase = () => {
         err.response?.data?.limitType === "cases"
       ) {
         setDailyLimitMessage(
-          `Daily Limit Reached: You've created ${err.response.data.usedToday}/${err.response.data.dailyLimit} cases today. ` +
-            `Upgrade to premium for unlimited access!`
+          `Daily Limit Reached: You've created ${err.response.data.usedToday}/${err.response.data.dailyLimit} cases today.`
         );
         setError(err.response.data.error);
       } else {
@@ -412,26 +401,6 @@ const AddCase = () => {
 
   return (
     <div className="add-case-container">
-      {/* ✅ Show trial status banner if on trial */}
-      {subscriptionStatus?.isTrialActive && (
-        <div
-          className="trial-status-banner"
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            padding: "0.75rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-            textAlign: "center",
-            fontSize: "0.9rem",
-          }}
-        >
-          🎉 Free Trial Active - {subscriptionStatus.daysRemaining} days
-          remaining
-        </div>
-      )}
-
-      {/* ✅ Daily Limit Warning */}
       {dailyLimitMessage && (
         <div
           className="daily-limit-warning"
@@ -445,21 +414,6 @@ const AddCase = () => {
           }}
         >
           <strong>{dailyLimitMessage}</strong>
-          <button
-            onClick={() => navigate("/subscription")}
-            style={{
-              marginLeft: "1rem",
-              padding: "0.5rem 1rem",
-              background: "white",
-              color: "#f5576c",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
-          >
-            Upgrade Now
-          </button>
         </div>
       )}
 
@@ -561,13 +515,6 @@ const AddCase = () => {
           </div>
         </div>
       </div>
-
-      {/* Subscription Blocker - Only shows when trial expired AND not subscribed */}
-      <SubscriptionBlocker
-        isOpen={showBlocker}
-        onClose={() => setShowBlocker(false)}
-        featureName="Case Creation"
-      />
     </div>
   );
 };

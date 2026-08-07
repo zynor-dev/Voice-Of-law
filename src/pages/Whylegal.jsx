@@ -33,7 +33,7 @@ const Whylegal = () => {
             detail on our platform is trustworthy, secure, and designed to make
             your legal journey easier and more productive.
           </p>
-          <button className="dark-button"  onClick={() => navigate("/auth/subscribe")}>Get Started</button>
+          <button className="dark-button"  onClick={() => navigate("/auth/register")}>Get Started</button>
         </div>
       </div>
     </section>

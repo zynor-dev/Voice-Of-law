@@ -28,8 +28,6 @@ import {
   FaShareAlt,
   FaCopy,
 } from "react-icons/fa";
-import SubscriptionBlocker from "../../components/SubscriptionBlocker";
-import useSubscriptionCheck from "../../hooks/useSubscriptionCheck";
 import "../Style/Vault.css";
 
 const DocumentVault = () => {
@@ -38,10 +36,6 @@ const DocumentVault = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const fileInputRef = useRef(null);
-
-  // ✅ FIX: Get subscription status properly
-  const { canAccessFeature, subscriptionStatus } = useSubscriptionCheck();
-  const [showBlocker, setShowBlocker] = useState(false);
 
   const [vaultItems, setVaultItems] = useState([
     {
@@ -218,12 +212,6 @@ const DocumentVault = () => {
   });
 
   const handleFileUpload = (event) => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
-
     const files = Array.from(event.target.files);
     files.forEach((file) => {
       const newItem = {
@@ -245,11 +233,6 @@ const DocumentVault = () => {
   };
 
   const handleUploadClick = () => {
-    // ✅ CHECK SUBSCRIPTION - Block only if trial expired AND not subscribed
-    if (!canAccessFeature()) {
-      setShowBlocker(true);
-      return;
-    }
     setShowUploadModal(true);
   };
 
@@ -309,26 +292,6 @@ const DocumentVault = () => {
 
   return (
     <div className="vault-container">
-      {/* ✅ SHOW TRIAL STATUS BANNER */}
-      {subscriptionStatus?.isTrialActive && (
-        <div
-          className="trial-status-banner"
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            padding: "0.75rem 1rem",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-            textAlign: "center",
-            fontSize: "0.9rem",
-            fontWeight: "500",
-          }}
-        >
-          🎉 Free Trial Active - {subscriptionStatus.daysRemaining} days
-          remaining
-        </div>
-      )}
-
       <div className="vault-header">
         <div className="header-content">
           <h1>Document Vault</h1>
@@ -433,13 +396,6 @@ const DocumentVault = () => {
           </div>
         </div>
       )}
-
-      {/* ✅ Subscription Blocker - Only shows when trial expired AND not subscribed */}
-      <SubscriptionBlocker
-        isOpen={showBlocker}
-        onClose={() => setShowBlocker(false)}
-        featureName="Document Upload"
-      />
     </div>
   );
 };
