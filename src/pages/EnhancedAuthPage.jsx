@@ -600,17 +600,11 @@ const EnhancedAuthPage = () => {
             </div>
           </div>
 
-          {isLoginMode ? (
-            <div
-              ref={googleBtnRef}
-              className="w-full flex justify-center"
-              style={{ minHeight: "44px" }}
-            />
-          ) : (
-            <p className="text-center text-sm text-gray-500">
-              Create and verify your account with email first. You can then use Google sign-in with the same email.
-            </p>
-          )}
+          <div
+            ref={googleBtnRef}
+            className="w-full flex justify-center"
+            style={{ minHeight: "44px" }}
+          />
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
