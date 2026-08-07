@@ -45,18 +45,18 @@ const getItemUrl = (item) =>
 const getItemName = (item) =>
   item.originalName || item.name || item.fileName || "File";
 
-// ─── Uploader used for both Evidence and Case Orders ───────────
+// ─── Preview + list used for both Evidence and Case Orders ────
+// (The dropzone itself now lives in the hero — see CompactDropzone)
 function AttachmentSection({
   caseId,
   sectionType,
   items,
   onChange,
   emptyLabel,
+  uploadError,
 }) {
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const fileInputRef = useRef(null);
 
   const imageItems = items.filter(isImageFile);
   const fileItems = items.filter((i) => !isImageFile(i));
@@ -64,23 +64,6 @@ function AttachmentSection({
   useEffect(() => {
     if (activeIndex >= imageItems.length) setActiveIndex(0);
   }, [imageItems.length, activeIndex]);
-
-  const handleFiles = async (fileList) => {
-    const files = Array.from(fileList || []);
-    if (!files.length) return;
-    setUploading(true);
-    setError("");
-    try {
-      const res = await casesAPI.uploadFiles(caseId, files, sectionType);
-      const updated = res.data?.data || res.data;
-      onChange(updated);
-    } catch (err) {
-      setError(handleApiError(err));
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
 
   const handleDelete = async (itemId) => {
     if (!window.confirm("Remove this attachment?")) return;
@@ -98,47 +81,13 @@ function AttachmentSection({
     }
   };
 
-  const onDrop = (e) => {
-    e.preventDefault();
-    handleFiles(e.dataTransfer.files);
-  };
-
   return (
     <div className="upload-section-container">
-      {error && (
+      {(error || uploadError) && (
         <div className="error-message" style={{ marginBottom: "1rem" }}>
-          {error}
+          {error || uploadError}
         </div>
       )}
-
-      {/* Dropzone */}
-      <div
-        className="upload-option-card"
-        onDragOver={(e) => e.preventDefault()}
-        onDrop={onDrop}
-        onClick={() => fileInputRef.current?.click()}
-        style={{ cursor: "pointer" }}
-      >
-        <div className="upload-icon">
-          <FaCloudUploadAlt />
-        </div>
-        <h3>{uploading ? "Uploading..." : "Click or drag files here"}</h3>
-        <p>Photos and documents supported</p>
-        <button
-          type="button"
-          className="upload-option-btn"
-          disabled={uploading}
-        >
-          {uploading ? "Please wait..." : "Choose Files"}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          hidden
-          onChange={(e) => handleFiles(e.target.files)}
-        />
-      </div>
 
       {/* Full-bleed photo viewer + thumbnail rail */}
       {imageItems.length > 0 && (
@@ -219,6 +168,41 @@ function AttachmentSection({
       )}
 
       {items.length === 0 && <p className="no-items-message">{emptyLabel}</p>}
+    </div>
+  );
+}
+
+// ─── Compact dropzone — sits in the hero, between title and hearing ──
+function CompactDropzone({ uploading, onFiles, fileInputRef }) {
+  const onDrop = (e) => {
+    e.preventDefault();
+    onFiles(e.dataTransfer.files);
+  };
+
+  return (
+    <div
+      className="hero-dropzone"
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={onDrop}
+      onClick={() => fileInputRef.current?.click()}
+    >
+      <FaCloudUploadAlt className="hero-dropzone-icon" />
+      <div className="hero-dropzone-text">
+        <strong>
+          {uploading ? "Uploading..." : "Click or drag files here"}
+        </strong>
+        <span>Photos and documents supported</span>
+      </div>
+      <button type="button" className="hero-dropzone-btn" disabled={uploading}>
+        {uploading ? "Please wait..." : "Choose Files"}
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        hidden
+        onChange={(e) => onFiles(e.target.files)}
+      />
     </div>
   );
 }
@@ -429,6 +413,9 @@ export default function CaseDetails() {
   const [caseData, setCaseData] = useState(null);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("overview");
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef(null);
 
   const load = useCallback(() => {
     return casesAPI
@@ -479,6 +466,25 @@ export default function CaseDetails() {
       load();
     }
   };
+
+  const handleHeroUpload = async (fileList) => {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const res = await casesAPI.uploadFiles(caseId, files, activeTab);
+      const updated = res.data?.data || res.data;
+      applyUpdatedCase(updated);
+    } catch (err) {
+      setUploadError(handleApiError(err));
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const showHeroDropzone = activeTab === "evidence" || activeTab === "orders";
 
   const tabs = [
     { id: "overview", name: "Case Information", icon: <FaGavel /> },
@@ -538,6 +544,15 @@ export default function CaseDetails() {
               {caseData.status}
             </span>
           </div>
+
+          {showHeroDropzone && (
+            <CompactDropzone
+              uploading={uploading}
+              onFiles={handleHeroUpload}
+              fileInputRef={fileInputRef}
+            />
+          )}
+
           <div className="case-preview-hearing">
             <FaCalendarAlt />
             <div>
@@ -628,6 +643,7 @@ export default function CaseDetails() {
             items={evidence}
             onChange={applyUpdatedCase}
             emptyLabel="No evidence uploaded yet."
+            uploadError={uploadError}
           />
         )}
 
@@ -638,6 +654,7 @@ export default function CaseDetails() {
             items={orders}
             onChange={applyUpdatedCase}
             emptyLabel="No case orders uploaded yet."
+            uploadError={uploadError}
           />
         )}
 
