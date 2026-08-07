@@ -319,6 +319,19 @@ export const aiAPI = {
   // Check knowledge base status (Admin only)
   getKnowledgeBaseStatus: () => api.get("/ai/knowledge-base/status"),
 };
+// === DRAFTS APIs ===
+// NEW — used by the Drafting tab in CaseDetails.jsx
+export const draftsAPI = {
+  getAll: (params) => api.get("/drafts", { params }),
+  getById: (id) => api.get(`/drafts/${id}`),
+  create: (data) => api.post("/drafts", data),
+  update: (id, data) => api.put(`/drafts/${id}`, data),
+  delete: (id) => api.delete(`/drafts/${id}`),
+  generate: (data) => api.post("/drafts/generate", data),
+  export: (id, format) => api.post(`/drafts/${id}/export`, { format }),
+  listTemplates: () => api.get("/drafts/templates"),
+};
+
 // === UTILITY FUNCTIONS ===
 export const handleApiError = (error) => {
   if (error.response) {

@@ -13,10 +13,16 @@ import {
   FaTrash,
   FaDownload,
   FaFilePdf,
+  FaFileAlt,
   FaPlus,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
-import { casesAPI, filesAPI, handleApiError } from "../../services/api";
+import {
+  casesAPI,
+  filesAPI,
+  draftsAPI,
+  handleApiError,
+} from "../../services/api";
 import "../Style/CaseDetails.css";
 
 const Field = ({ label, value }) => (
@@ -322,6 +328,101 @@ function NotesSection({ caseId, notes, onChange }) {
   );
 }
 
+// ─── Drafting section — case-linked drafts ─────────────────────
+function DraftingSection({ caseId, drafts, onChange }) {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+
+  const handleDelete = async (draftId) => {
+    if (!window.confirm("Delete this draft?")) return;
+    try {
+      await draftsAPI.delete(draftId);
+      onChange({
+        drafts: drafts.filter((d) => (d._id || d.id) !== draftId),
+      });
+    } catch (err) {
+      setError(handleApiError(err));
+    }
+  };
+
+  return (
+    <div className="upload-section-container">
+      {error && (
+        <div className="error-message" style={{ marginBottom: "1rem" }}>
+          {error}
+        </div>
+      )}
+
+      <div
+        className="upload-option-card"
+        onClick={() => navigate("/user-panel/drafting", { state: { caseId } })}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="upload-icon">
+          <FaFileAlt />
+        </div>
+        <h3>Create a new draft</h3>
+        <p>Opens the drafting tool for this case</p>
+        <button type="button" className="upload-option-btn">
+          Start Drafting
+        </button>
+      </div>
+
+      {drafts.length > 0 && (
+        <div className="uploaded-items-section" style={{ marginTop: "1.5rem" }}>
+          <h3>Case Drafts</h3>
+          <div className="uploaded-items-list">
+            {drafts.map((draft) => {
+              const latestExport =
+                draft.exportedFormats?.[draft.exportedFormats.length - 1];
+              return (
+                <div className="uploaded-item" key={draft._id || draft.id}>
+                  <div className="item-icon">
+                    <FaFilePdf />
+                  </div>
+                  <div className="item-details">
+                    <h4>{draft.title}</h4>
+                    <p>
+                      {draft.status}
+                      {draft.updatedAt
+                        ? ` · ${new Date(draft.updatedAt).toLocaleDateString()}`
+                        : ""}
+                    </p>
+                  </div>
+                  <div className="item-actions">
+                    {latestExport?.fileUrl && (
+                      <a
+                        className="action-btn"
+                        href={filesAPI.getFileUrl(latestExport.fileUrl)}
+                        target="_blank"
+                        rel="noreferrer"
+                        title="Download"
+                      >
+                        <FaDownload />
+                      </a>
+                    )}
+                    <button
+                      className="action-btn"
+                      onClick={() => handleDelete(draft._id || draft.id)}
+                      title="Delete"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {drafts.length === 0 && (
+        <p className="no-items-message">No drafts created for this case yet.</p>
+      )}
+    </div>
+  );
+}
+
 export default function CaseDetails() {
   const { caseId } = useParams();
   const navigate = useNavigate();
@@ -369,6 +470,7 @@ export default function CaseDetails() {
   const evidence = caseData.evidence || caseData.evidenceFiles || [];
   const orders = caseData.orders || caseData.caseOrders || [];
   const notes = caseData.notes || caseData.timeline || [];
+  const drafts = caseData.drafts || [];
 
   const applyUpdatedCase = (updated) => {
     if (updated && typeof updated === "object") {
@@ -397,6 +499,12 @@ export default function CaseDetails() {
       name: "Notes / Timeline",
       icon: <FaStickyNote />,
       count: notes.length,
+    },
+    {
+      id: "drafting",
+      name: "Drafting",
+      icon: <FaFileAlt />,
+      count: drafts.length,
     },
   ];
 
@@ -537,6 +645,14 @@ export default function CaseDetails() {
           <NotesSection
             caseId={caseId}
             notes={notes}
+            onChange={applyUpdatedCase}
+          />
+        )}
+
+        {activeTab === "drafting" && (
+          <DraftingSection
+            caseId={caseId}
+            drafts={drafts}
             onChange={applyUpdatedCase}
           />
         )}
