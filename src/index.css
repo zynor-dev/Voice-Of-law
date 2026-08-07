@@ -27,12 +27,11 @@
 
 /* ─── Base ────────────────────────────────────────────────────── */
 html {
-  font-size: 14px;
+  font-size: 11.2px;   /* pehle 14px tha */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
 }
-
 body {
   margin: 0;
   font-family: var(--font-sans);
