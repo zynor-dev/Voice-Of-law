@@ -37,7 +37,6 @@ import DashboardProfileCard from "../components/user-panel/DashboardProfileCard"
 import LawyerCalendarPage from "../components/user-panel/LawyerCalendarPage";
 import NotificationPopover from "../components/user-panel/NotificationPopover";
 import OnboardingGuard from "../components/OnboardingGuard";
-import JotformAgent from "./JotformAgent";
 import logo from "../assets/image/logo.png";
 
 /* ─── Brand tokens ─────────────────────────────────────────── */
@@ -58,8 +57,7 @@ const SIDEBAR_ITEMS = [
   { name: "Library",              path: "/user-panel/library",      icon: BookOpen                    },
   { name: "Legal Drafting",       path: "/user-panel/drafting",     icon: Scale                       },
   { name: "Vault",                path: "/user-panel/vault",        icon: FolderLock                  },
-  { name: "Jotform Agent",        path: "/user-panel/jotform-agent",icon: Bot                         },
-  { name: "Notepad",              path: "/user-panel/notepad",      icon: StickyNote                  },
+   { name: "Notepad",              path: "/user-panel/notepad",      icon: StickyNote                  },
   { name: "Calendar",             path: "/user-panel/calendar",     icon: Calendar                    },
   { name: "Settings",             path: "/user-panel/settings",     icon: Settings                    },
 ];
@@ -641,7 +639,6 @@ export default function UserPanel() {
                       <DashboardHome user={user} navigate={navigate} />
                     } />
                     <Route path="chatbot"      element={<Chatbot />} />
-                    <Route path="jotform-agent" element={<JotformAgent />} />
                     <Route path="calendar"     element={<LawyerCalendarPage />} />
                     <Route path="settings"     element={<SettingsPage />} />
                     <Route path="cases/*">
