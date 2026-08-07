@@ -185,10 +185,10 @@ const EditCase = () => {
         </button>
         <h2>Edit Case</h2>
         <div className="header-actions">
-          <button className="cancel-btn" onClick={handleCancel}>
+          <button className="cancel-btn" type="button" onClick={handleCancel}>
             <FaTimes /> Cancel
           </button>
-          <button className="save-btn" type="submit" disabled={loading}>
+          <button className="save-btn" type="submit" form="edit-case-form" disabled={loading}>
             {loading ? (
               "Updating..."
             ) : (
@@ -200,7 +200,7 @@ const EditCase = () => {
         </div>
       </div>
 
-      <form className="case-form" onSubmit={handleSubmit}>
+      <form id="edit-case-form" className="case-form" onSubmit={handleSubmit}>
         <div className="form-section">
           <h3>Case Information</h3>
           <div className="form-grid">
@@ -312,7 +312,9 @@ const EditCase = () => {
                 required
               >
                 <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
+                <option value="reserved">Reserved</option>
+                <option value="disposed">Disposed</option>
+                <option value="appealed">Appealed</option>
                 <option value="hearing">Hearing</option>
               </select>
             </div>

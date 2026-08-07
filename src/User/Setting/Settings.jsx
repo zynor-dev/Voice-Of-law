@@ -834,7 +834,10 @@ const Settings = () => {
           max-width: 1200px;
           margin: 0 auto;
           background: var(--dashboard-bg);
-          min-height: 100vh;
+          height: 100%;
+          min-height: 0;
+          overflow-y: auto;
+          box-sizing: border-box;
         }
 
         .settings-header {

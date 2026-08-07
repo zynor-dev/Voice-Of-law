@@ -122,7 +122,7 @@ function DashboardHome({ user, navigate }) {
   return (
     <div style={{
       height: "100%", overflowY: "auto", background: LIGHT,
-      padding: "20px 20px 80px",
+      padding: "20px",
     }}>
       {/* ── AI Intelligence Banner ── */}
       <motion.div
@@ -418,7 +418,7 @@ export default function UserPanel() {
         }
 
         /* Content */
-        .vol-content { flex:1; overflow:hidden; }
+        .vol-content { flex:1; min-height:0; overflow:hidden; }
 
         /* Bottom nav (mobile only) */
         .vol-bottom-nav {
@@ -439,7 +439,7 @@ export default function UserPanel() {
         @media (max-width: 768px) {
           .vol-sidebar    { display:none; }
           .vol-topbar     { display:none; }
-          .vol-main       { padding-top:52px; padding-bottom:60px; }
+          .vol-main       { padding-top:52px; padding-bottom:60px; min-height:0; }
           .vol-bottom-nav { display:flex; }
           .vol-mobile-header { display:flex; }
           .vol-prompt-btn { display:none !important; }

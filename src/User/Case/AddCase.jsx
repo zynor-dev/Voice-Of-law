@@ -89,6 +89,20 @@ const AddCase = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const requiredBySection = {
+      "case-info": ["title", "courtName", "type", "caseNo", "caseYear", "onBehalfOf", "nextHearing"],
+      "party-info": ["partyName", "contactNumber", "respondent"],
+      "advocate-info": ["lawyer"],
+    };
+    const incompleteSection = Object.entries(requiredBySection).find(([, fields]) =>
+      fields.some((field) => !String(formData[field] || "").trim()),
+    );
+    if (incompleteSection) {
+      setActiveSection(incompleteSection[0]);
+      setError("Please complete the required fields before saving the case.");
+      return;
+    }
+
     setLoading(true);
     setError("");
     setDailyLimitMessage("");
@@ -459,6 +473,7 @@ const AddCase = () => {
           <button
             className="save-btn"
             type="submit"
+            form="add-case-form"
             disabled={loading}
           >
             {loading ? (
@@ -507,7 +522,7 @@ const AddCase = () => {
 
             <div className="case-main-content">
               <div className="case-form-container">
-                <form className="case-form" onSubmit={handleSubmit}>
+                <form id="add-case-form" className="case-form" onSubmit={handleSubmit}>
                   {renderFormSection()}
                 </form>
               </div>

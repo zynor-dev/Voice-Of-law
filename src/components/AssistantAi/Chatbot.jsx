@@ -394,15 +394,16 @@ export default function Chatbot() {
 
         .vol-chatbot {
           display: flex;
-          height: 100vh;
-          background: #0d0d0f;
+          height: 100%;
+          min-height: 0;
+          background: #f5f5f7;
           font-family: 'DM Sans', sans-serif;
-          color: #e8e0d0;
+          color: #24242a;
           overflow: hidden;
         }
 
         /* Sidebar */
-        .vol-sidebar {
+        .vol-chat-sidebar {
           width: 270px;
           min-width: 270px;
           background: #111113;
@@ -412,13 +413,13 @@ export default function Chatbot() {
           transition: width 0.3s ease, min-width 0.3s ease;
           overflow: hidden;
         }
-        .vol-sidebar.closed {
+        .vol-chat-sidebar.closed {
           width: 0;
           min-width: 0;
           border-right: none;
         }
 
-        .vol-sidebar-top {
+        .vol-chat-sidebar-top {
           padding: 20px 16px 12px;
           border-bottom: 1px solid #1e1e22;
         }
@@ -459,7 +460,7 @@ export default function Chatbot() {
         }
         .vol-new-btn:hover { opacity: 0.88; }
 
-        .vol-history {
+        .vol-chat-history {
           flex: 1;
           overflow-y: auto;
           padding: 12px 8px;
@@ -528,7 +529,7 @@ export default function Chatbot() {
         .vol-conv-action-btn.bookmarked { color: #c9a84c; display: flex !important; }
 
         /* Main area */
-        .vol-main {
+        .vol-chat-main {
           flex: 1;
           display: flex;
           flex-direction: column;
@@ -793,18 +794,43 @@ export default function Chatbot() {
           40% { transform: scale(1); opacity: 1; }
         }
 
+        /* Dashboard-aligned light surface: keeps the existing gold brand, without a dark chat screen. */
+        .vol-chatbot { background: #f5f5f7; color: #24242a; }
+        .vol-chat-sidebar { background: #fff; border-right-color: #e6e2d8; }
+        .vol-chat-sidebar-top { border-bottom-color: #e6e2d8; }
+        .vol-chat-history { scrollbar-color: #d8d1c2 transparent; }
+        .vol-chat-main, .vol-header, .vol-input-wrap { background: #fff; }
+        .vol-header, .vol-input-wrap { border-color: #e6e2d8; }
+        .vol-header-title { color: #24242a; }
+        .vol-menu-btn { color: #625d68; }
+        .vol-messages { background: #f5f5f7; }
+        .vol-empty h2 { color: #24242a; }
+        .vol-empty p { color: #746f7c; }
+        .vol-suggestion, .vol-bubble { background: #fff; border-color: #e6e2d8; color: #302d35; }
+        .vol-msg.assistant .vol-bubble { background: #fff; border-color: #e6e2d8; color: #302d35; }
+        .vol-conv-item:hover, .vol-conv-item.active { background: #f7f3ea; }
+        .vol-conv-title { color: #625d68; }
+        .vol-conv-item.active .vol-conv-title { color: #24242a; }
+        .vol-input-box { background: #fff; border-color: #d8d1c2; }
+        .vol-textarea { color: #24242a; }
+        .vol-textarea::placeholder { color: #8d8792; }
+        .vol-input-hint { color: #8d8792; }
+
         /* Mobile */
         @media (max-width: 640px) {
-          .vol-sidebar { position: absolute; z-index: 50; height: 100%; }
-          .vol-sidebar.closed { width: 0; }
+          .vol-chat-sidebar { position: absolute; z-index: 50; height: 100%; box-shadow: 12px 0 30px rgba(0,0,0,.12); }
+          .vol-chat-sidebar.closed { width: 0; }
           .vol-bubble { max-width: 88%; }
+          .vol-header { padding: 12px 14px; }
+          .vol-messages { padding: 16px 14px; }
+          .vol-input-wrap { padding: 10px 12px 12px; }
         }
       `}</style>
 
       <div className="vol-chatbot">
         {/* Sidebar */}
-        <div className={`vol-sidebar ${sidebarOpen ? "" : "closed"}`}>
-          <div className="vol-sidebar-top">
+        <div className={`vol-chat-sidebar ${sidebarOpen ? "" : "closed"}`}>
+          <div className="vol-chat-sidebar-top">
             <div className="vol-logo">
               <ScaleIcon />
               <span className="vol-logo-text">Voice of Law</span>
@@ -815,7 +841,7 @@ export default function Chatbot() {
             </button>
           </div>
 
-          <div className="vol-history">
+          <div className="vol-chat-history">
             <div className="vol-history-label">Recent Chats</div>
             {loadingHistory && (
               <div
@@ -873,7 +899,7 @@ export default function Chatbot() {
         </div>
 
         {/* Main */}
-        <div className="vol-main">
+        <div className="vol-chat-main">
           {/* Header */}
           <div className="vol-header">
             <button

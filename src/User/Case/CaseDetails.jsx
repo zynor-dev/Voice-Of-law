@@ -42,9 +42,10 @@ const CaseDetails = () => {
       const response = await casesAPI.getById(caseId);
       console.log('Case API Response:', response);
       
-      if (response.data) {
-        setCaseData(response.data);
-        console.log('Case data set successfully:', response.data);
+      const caseRecord = response.data?.case || response.data?.data?.case;
+      if (caseRecord) {
+        setCaseData(caseRecord);
+        console.log('Case data set successfully:', caseRecord);
       } else {
         setError('Case data not found in response');
       }
