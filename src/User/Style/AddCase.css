@@ -182,6 +182,10 @@
   padding: 1rem;
   border-bottom: 1px solid var(--border-grey);
   cursor: pointer;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
   transition: background-color 0.2s ease;
 }
 
@@ -260,6 +264,8 @@
   resize: vertical;
   min-height: 100px;
 }
+
+.form-step-actions { display: flex; justify-content: flex-end; margin-top: 1.5rem; }
 
 .error-message {
   background: #f8d7da;

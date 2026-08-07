@@ -201,6 +201,11 @@ const AddCase = () => {
     }
   };
 
+  const goToNextSection = () => {
+    const currentIndex = sections.findIndex((section) => section.id === activeSection);
+    if (currentIndex < sections.length - 1) setActiveSection(sections[currentIndex + 1].id);
+  };
+
   const renderFormSection = () => {
     switch (activeSection) {
       case "case-info":
@@ -496,27 +501,30 @@ const AddCase = () => {
                   "Case Details"}
               </h3>
               <div className="form-progress">
-                <div
+                <button type="button"
                   className={`progress-item ${
                     activeSection === "case-info" ? "active" : ""
                   }`}
+                  onClick={() => setActiveSection("case-info")}
                 >
                   <span>Case Information</span>
-                </div>
-                <div
+                </button>
+                <button type="button"
                   className={`progress-item ${
                     activeSection === "party-info" ? "active" : ""
                   }`}
+                  onClick={() => setActiveSection("party-info")}
                 >
                   <span>Party Information</span>
-                </div>
-                <div
+                </button>
+                <button type="button"
                   className={`progress-item ${
                     activeSection === "advocate-info" ? "active" : ""
                   }`}
+                  onClick={() => setActiveSection("advocate-info")}
                 >
                   <span>Advocate Information</span>
-                </div>
+                </button>
               </div>
             </div>
 
@@ -524,6 +532,11 @@ const AddCase = () => {
               <div className="case-form-container">
                 <form id="add-case-form" className="case-form" onSubmit={handleSubmit}>
                   {renderFormSection()}
+                  {activeSection !== "advocate-info" && (
+                    <div className="form-step-actions">
+                      <button type="button" className="save-btn" onClick={goToNextSection}>Continue</button>
+                    </div>
+                  )}
                 </form>
               </div>
             </div>

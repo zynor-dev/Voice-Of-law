@@ -736,19 +736,6 @@ export default function UserPanel() {
         })}
       </nav>
 
-      {/* ── FAB (floating +) ── */}
-      <button
-        onClick={() => navigate("/user-panel/cases/add")}
-        style={{
-          position:"fixed", bottom:80, right:20,
-          width:50, height:50, borderRadius:"50%",
-          background:GOLD, border:"none", cursor:"pointer",
-          display:"flex", alignItems:"center", justifyContent:"center",
-          boxShadow:`0 4px 20px ${GOLD}66`, zIndex:150,
-        }}
-      >
-        <Plus size={22} color={DARK} strokeWidth={2.5} />
-      </button>
     </>
   );
 }

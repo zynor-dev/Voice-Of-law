@@ -244,7 +244,7 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > 640);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -905,6 +905,7 @@ export default function Chatbot() {
             <button
               className="vol-menu-btn"
               onClick={() => setSidebarOpen((o) => !o)}
+              aria-label="Open chat history"
             >
               <MenuIcon />
             </button>
@@ -1008,9 +1009,6 @@ export default function Chatbot() {
               >
                 <SendIcon />
               </button>
-            </div>
-            <div className="vol-input-hint">
-              Press Enter to send · Shift+Enter for new line
             </div>
           </div>
         </div>

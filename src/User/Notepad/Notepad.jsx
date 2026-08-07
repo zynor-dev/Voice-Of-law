@@ -8,10 +8,9 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from "react-icons/fa";
-import axios from "axios";
 import "../Style/Notepad.css";
 
-const API_URL = "https://voiceoflaw-backend.onrender.com/api/standalone/notes";
+const NOTES_STORAGE_KEY = "vol_user_notes";
 
 const Notepad = () => {
   const [notes, setNotes] = useState([]);
@@ -24,21 +23,7 @@ const Notepad = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [loading, setLoading] = useState(false);
 
-  // Get auth token from localStorage
-  const getAuthToken = () => {
-    return localStorage.getItem("token");
-  };
-
-  // Get auth headers for API requests
-  const getAuthHeaders = () => {
-    const token = getAuthToken();
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
-  };
+  const persistNotes = (nextNotes) => localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(nextNotes));
 
   // Handle window resize
   useEffect(() => {
@@ -50,7 +35,6 @@ const Notepad = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch notes from backend (user-specific)
   useEffect(() => {
     fetchNotes();
   }, []);
@@ -58,16 +42,12 @@ const Notepad = () => {
   const fetchNotes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL, getAuthHeaders());
-      setNotes(response.data);
-      setFilteredNotes(response.data);
-    } catch (error) {
-      console.error("Error fetching notes:", error);
-      if (error.response?.status === 401) {
-        alert("Please login to view your notes.");
-      } else {
-        alert("Failed to fetch notes. Please check if the server is running.");
-      }
+      const saved = JSON.parse(localStorage.getItem(NOTES_STORAGE_KEY) || "[]");
+      setNotes(saved);
+      setFilteredNotes(saved);
+    } catch {
+      setNotes([]);
+      setFilteredNotes([]);
     } finally {
       setLoading(false);
     }
@@ -128,27 +108,18 @@ const Notepad = () => {
 
     try {
       setLoading(true);
-      const response = await axios.post(API_URL, newNote, getAuthHeaders());
-
-      const updatedNotes = [response.data, ...notes];
+      const savedNote = { ...newNote, _id: crypto.randomUUID(), updatedAt: new Date().toISOString() };
+      const updatedNotes = [savedNote, ...notes];
+      persistNotes(updatedNotes);
       setNotes(updatedNotes);
       setFilteredNotes(updatedNotes);
-      setSelectedNote(response.data);
+      setSelectedNote(savedNote);
       setIsEditing(false);
       setNewNote({ title: "", content: "", date: "" });
       alert("Note saved successfully!");
     } catch (error) {
       console.error("Error saving note:", error);
-      if (error.response?.status === 401) {
-        alert("Please login to save notes.");
-      } else if (error.response?.status === 403) {
-        // Handle daily limit error
-        alert(
-          error.response.data.error || "Daily limit reached."
-        );
-      } else {
-        alert("Failed to save note. Please try again.");
-      }
+      alert("Failed to save note. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -167,23 +138,13 @@ const Notepad = () => {
 
     try {
       setLoading(true);
-      const response = await axios.put(
-        `${API_URL}/${selectedNote._id}`,
-        {
-          title: selectedNote.title,
-          content: selectedNote.content,
-          date: selectedNote.date,
-        },
-        getAuthHeaders()
-      );
-
       const updatedNotes = notes.map((note) =>
-        note._id === selectedNote._id ? response.data : note
+        note._id === selectedNote._id ? { ...selectedNote, updatedAt: new Date().toISOString() } : note
       );
-
+      persistNotes(updatedNotes);
       setNotes(updatedNotes);
       setFilteredNotes(updatedNotes);
-      setSelectedNote(response.data);
+      setSelectedNote(updatedNotes.find((note) => note._id === selectedNote._id));
       setIsEditing(false);
       alert("Note updated successfully!");
     } catch (error) {
@@ -208,11 +169,10 @@ const Notepad = () => {
 
     try {
       setLoading(true);
-      await axios.delete(`${API_URL}/${selectedNote._id}`, getAuthHeaders());
-
       const updatedNotes = notes.filter(
         (note) => note._id !== selectedNote._id
       );
+      persistNotes(updatedNotes);
       setNotes(updatedNotes);
       setFilteredNotes(updatedNotes);
       setSelectedNote(null);
