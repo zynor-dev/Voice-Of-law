@@ -4,6 +4,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import lawgptLogo from "../assets/image/logo.png";
 import { Scale } from "lucide-react";
 import { API_V1_BASE } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const GOOGLE_CLIENT_ID =
   "280320345760-grosn2ifh7rcnk6bju54gcpi57v2n23l.apps.googleusercontent.com";
@@ -11,6 +12,7 @@ const GOOGLE_CLIENT_ID =
 const EnhancedAuthPage = () => {
   const { mode } = useParams();
   const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -60,6 +62,7 @@ const EnhancedAuthPage = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("voicelaw_user", JSON.stringify(userData));
+      setUser(userData);
 
       if (data.user.role === "admin") {
         navigate("/dashboard", { replace: true });
@@ -67,7 +70,7 @@ const EnhancedAuthPage = () => {
         navigate("/user-panel", { replace: true });
       }
     },
-    [navigate],
+    [navigate, setUser],
   );
 
   // ─── Google Identity Services ──────────────────────────────

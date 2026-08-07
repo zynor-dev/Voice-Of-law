@@ -15,6 +15,39 @@ export function AuthProvider({ children }) {
   });
   const navigate = useNavigate();
 
+  // The database is the source of truth for a profile. localStorage is only a
+  // cache, so the same account shows its saved profile on every device.
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    let cancelled = false;
+    fetch(`${API_V1_BASE}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Session is no longer valid");
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled && data?.user) {
+          setUser({ ...data.user, token });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("voicelaw_user");
+          setUser(null);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("voicelaw_user", JSON.stringify(user));
