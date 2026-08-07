@@ -23,6 +23,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { casesAPI, handleApiError } from "../../services/api";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactDOM from "react-dom";
 
 // ── Theme tokens ────────────────────────────────────────────────
 const G = "#C79F44";
@@ -832,158 +833,170 @@ export default function MyCases() {
       </AnimatePresence>
 
       {/* ── Case Detail Modal ──────────────────────────────────── */}
-      <AnimatePresence>
-        {detailOpen && selectedCase && (
-          <motion.div
-            className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-3"
-            style={{
-              background: "rgba(0,0,0,0.55)",
-              backdropFilter: "blur(4px)",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setDetailOpen(false)}
-          >
+
+      {ReactDOM.createPortal(
+        <AnimatePresence>
+          {detailOpen && selectedCase && (
             <motion.div
-              initial={{ y: 30, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              className="w-full max-w-lg rounded-2xl overflow-hidden"
+              className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-3"
               style={{
-                background: "#1e1e1e",
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+                background: "rgba(0,0,0,0.55)",
+                backdropFilter: "blur(4px)",
               }}
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setDetailOpen(false)}
             >
-              <div className="h-[3px]" style={{ background: G }} />
-              <div
-                className="flex items-center justify-between px-5 py-4"
-                style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
+              <motion.div
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 20, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                className="w-full max-w-lg rounded-2xl overflow-hidden"
+                style={{
+                  background: "#1e1e1e",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+                }}
+                onClick={(e) => e.stopPropagation()}
               >
-                <h3 className="text-sm font-bold text-white">Case Details</h3>
-                <button
-                  onClick={() => setDetailOpen(false)}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg"
-                  style={{ color: "rgba(255,255,255,0.4)" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "rgba(255,255,255,0.07)";
-                    e.currentTarget.style.color = "#fff";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.color = "rgba(255,255,255,0.4)";
-                  }}
+                <div className="h-[3px]" style={{ background: G }} />
+                <div
+                  className="flex items-center justify-between px-5 py-4"
+                  style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}
                 >
-                  <FaTimes style={{ fontSize: 11 }} />
-                </button>
-              </div>
-              <div className="p-5 space-y-4">
-                <div>
-                  <h4 className="text-base font-bold text-white mb-1.5">
-                    {selectedCase.title}
-                  </h4>
-                  <StatusBadge status={selectedCase.status} />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {[
-                    ["Case Number", selectedCase.caseNo],
-                    [
-                      "Party Name",
-                      selectedCase.client?.name || selectedCase.partyName,
-                    ],
-                    ["Court", selectedCase.court?.name || selectedCase.court],
-                    ["Next Hearing", formatDate(selectedCase.nextHearing)],
-                  ].map(([l, v]) =>
-                    v ? (
-                      <div
-                        key={l}
-                        className="rounded-lg p-3"
-                        style={{ background: "rgba(255,255,255,0.04)" }}
-                      >
-                        <p
-                          className="text-[9px] font-semibold uppercase tracking-wider mb-0.5"
-                          style={{ color: "rgba(255,255,255,0.3)" }}
-                        >
-                          {l}
-                        </p>
-                        <p className="text-xs font-semibold text-white">{v}</p>
-                      </div>
-                    ) : null,
-                  )}
-                </div>
-                {selectedCase.description && (
-                  <div
-                    className="rounded-lg p-3"
-                    style={{ background: "rgba(255,255,255,0.04)" }}
+                  <h3 className="text-sm font-bold text-white">Case Details</h3>
+                  <button
+                    onClick={() => setDetailOpen(false)}
+                    className="flex h-7 w-7 items-center justify-center rounded-lg"
+                    style={{ color: "rgba(255,255,255,0.4)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background =
+                        "rgba(255,255,255,0.07)";
+                      e.currentTarget.style.color = "#fff";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.color = "rgba(255,255,255,0.4)";
+                    }}
                   >
-                    <p
-                      className="text-[9px] font-semibold uppercase tracking-wider mb-1"
-                      style={{ color: "rgba(255,255,255,0.3)" }}
-                    >
-                      Description
-                    </p>
-                    <p className="text-xs text-white leading-relaxed opacity-70">
-                      {selectedCase.description}
-                    </p>
+                    <FaTimes style={{ fontSize: 11 }} />
+                  </button>
+                </div>
+                <div className="p-5 space-y-4">
+                  <div>
+                    <h4 className="text-base font-bold text-white mb-1.5">
+                      {selectedCase.title}
+                    </h4>
+                    <StatusBadge status={selectedCase.status} />
                   </div>
-                )}
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={() => {
-                      setDetailOpen(false);
-                      navigate(`/user-panel/cases/${selectedCase._id}`, {
-                        state: { caseData: selectedCase },
-                      });
-                    }}
-                    className="flex-1 py-2.5 rounded-xl text-xs font-bold transition"
-                    style={{ background: G, color: DARK }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = "#d4aa55")
-                    }
-                    onMouseLeave={(e) => (e.currentTarget.style.background = G)}
-                  >
-                    <FaEye className="inline mr-1.5" style={{ fontSize: 10 }} />{" "}
-                    View Full Case
-                  </button>
-                  <button
-                    onClick={() => {
-                      setDetailOpen(false);
-                      gate("Edit Case", () =>
-                        navigate("/user-panel/cases/edit", {
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      ["Case Number", selectedCase.caseNo],
+                      [
+                        "Party Name",
+                        selectedCase.client?.name || selectedCase.partyName,
+                      ],
+                      ["Court", selectedCase.court?.name || selectedCase.court],
+                      ["Next Hearing", formatDate(selectedCase.nextHearing)],
+                    ].map(([l, v]) =>
+                      v ? (
+                        <div
+                          key={l}
+                          className="rounded-lg p-3"
+                          style={{ background: "rgba(255,255,255,0.04)" }}
+                        >
+                          <p
+                            className="text-[9px] font-semibold uppercase tracking-wider mb-0.5"
+                            style={{ color: "rgba(255,255,255,0.3)" }}
+                          >
+                            {l}
+                          </p>
+                          <p className="text-xs font-semibold text-white">
+                            {v}
+                          </p>
+                        </div>
+                      ) : null,
+                    )}
+                  </div>
+                  {selectedCase.description && (
+                    <div
+                      className="rounded-lg p-3"
+                      style={{ background: "rgba(255,255,255,0.04)" }}
+                    >
+                      <p
+                        className="text-[9px] font-semibold uppercase tracking-wider mb-1"
+                        style={{ color: "rgba(255,255,255,0.3)" }}
+                      >
+                        Description
+                      </p>
+                      <p className="text-xs text-white leading-relaxed opacity-70">
+                        {selectedCase.description}
+                      </p>
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        setDetailOpen(false);
+                        navigate(`/user-panel/cases/${selectedCase._id}`, {
                           state: { caseData: selectedCase },
-                        }),
-                      )();
-                    }}
-                    className="flex-1 py-2.5 rounded-xl text-xs font-bold transition"
-                    style={{
-                      background: "rgba(255,255,255,0.07)",
-                      color: "#fff",
-                      border: "1px solid rgba(255,255,255,0.10)",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background =
-                        "rgba(255,255,255,0.12)")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background =
-                        "rgba(255,255,255,0.07)")
-                    }
-                  >
-                    <FaEdit
-                      className="inline mr-1.5"
-                      style={{ fontSize: 10 }}
-                    />{" "}
-                    Edit Case
-                  </button>
+                        });
+                      }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-bold transition"
+                      style={{ background: G, color: DARK }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "#d4aa55")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = G)
+                      }
+                    >
+                      <FaEye
+                        className="inline mr-1.5"
+                        style={{ fontSize: 10 }}
+                      />{" "}
+                      View Full Case
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDetailOpen(false);
+                        gate("Edit Case", () =>
+                          navigate("/user-panel/cases/edit", {
+                            state: { caseData: selectedCase },
+                          }),
+                        )();
+                      }}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-bold transition"
+                      style={{
+                        background: "rgba(255,255,255,0.07)",
+                        color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.10)",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(255,255,255,0.12)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background =
+                          "rgba(255,255,255,0.07)")
+                      }
+                    >
+                      <FaEdit
+                        className="inline mr-1.5"
+                        style={{ fontSize: 10 }}
+                      />{" "}
+                      Edit Case
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
 
       {/* ── Delete Confirm Modal ───────────────────────────────── */}
       <AnimatePresence>

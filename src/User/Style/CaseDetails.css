@@ -1337,3 +1337,168 @@
     padding: 1.5rem;
   }
 }
+/* ══════════════════════════════════════════════════════════════
+   ADD THIS BLOCK TO THE END OF CaseDetails.css
+   Powers: tab navigation, full-bleed evidence photo preview with
+   a thumbnail rail alongside, mobile-responsive behavior.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Tab navigation (Case Info / Evidence / Orders / Notes) ─── */
+.case-detail-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 20px;
+  border-bottom: 2px solid var(--border-grey);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.case-detail-tabs::-webkit-scrollbar { display: none; }
+
+.case-detail-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  padding: 0.75rem 1.1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-light-grey);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.case-detail-tab:hover { color: var(--text-dark); }
+.case-detail-tab.active {
+  color: var(--accent-gold);
+  border-bottom-color: var(--accent-gold);
+}
+
+.case-detail-tab-count {
+  background: var(--accent-gold);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 99px;
+  line-height: 1.5;
+}
+
+/* ── Evidence / Orders panel sits below tabs ─────────────────── */
+.case-preview-content .upload-section-container {
+  margin-top: 18px;
+}
+
+/* ── Full-bleed photo viewer + side thumbnail rail ───────────── */
+.evidence-viewer {
+  display: flex;
+  gap: 16px;
+  margin-top: 1.5rem;
+  align-items: stretch;
+}
+
+.evidence-preview-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: #0d0d0f;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 16 / 10;
+}
+.evidence-preview-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.evidence-preview-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(20, 18, 10, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.evidence-preview-delete:hover { background: #dc2626; }
+
+.evidence-thumb-rail {
+  flex: 0 0 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.evidence-thumb {
+  flex-shrink: 0;
+  width: 96px;
+  height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: #f0f0f0;
+}
+.evidence-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.evidence-thumb.active {
+  border-color: var(--accent-gold);
+}
+
+/* ── Mobile: stack thumbnail rail below the main preview ─────── */
+@media (max-width: 768px) {
+  .case-detail-tabs {
+    gap: 0.25rem;
+  }
+  .case-detail-tab {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.72rem;
+  }
+  .case-detail-tab span {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .evidence-viewer {
+    flex-direction: column;
+  }
+  .evidence-preview-main {
+    aspect-ratio: 4 / 3;
+  }
+  .evidence-thumb-rail {
+    flex-direction: row;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: visible;
+    padding-bottom: 4px;
+  }
+  .evidence-thumb {
+    width: 76px;
+    height: 60px;
+  }
+
+  .upload-options {
+    flex-direction: column;
+  }
+}
