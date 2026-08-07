@@ -4,107 +4,50 @@ import api from "../../services/api";
 // ─── Icons ────────────────────────────────────────────────────
 const SendIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M22 2L11 13"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M22 2L15 22L11 13L2 9L22 2Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const PlusIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M12 5V19M5 12H19"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M12 5V19M5 12H19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
 const ChatIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const BookmarkIcon = ({ filled }) => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill={filled ? "currentColor" : "none"}
-  >
-    <path
-      d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+  <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"}>
+    <path d="M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const TrashIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M3 6H21M8 6V4H16V6M19 6L18 20C18 20.5304 17.7893 21.0391 17.4142 21.4142C17.0391 21.7893 16.5304 22 16 22H8C7.46957 22 6.96086 21.7893 6.58579 21.4142C6.21071 21.0391 6 20.5304 6 20L5 6"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M3 6H21M8 6V4H16V6M19 6L18 20C18 20.5304 17.7893 21.0391 17.4142 21.4142C17.0391 21.7893 16.5304 22 16 22H8C7.46957 22 6.96086 21.7893 6.58579 21.4142C6.21071 21.0391 6 20.5304 6 20L5 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const ScaleIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M12 3V21M3 6L12 3L21 6M3 6L7.5 18H3M21 6L16.5 18H21M7.5 18H16.5"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M12 3V21M3 6L12 3L21 6M3 6L7.5 18H3M21 6L16.5 18H21M7.5 18H16.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const MenuIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M3 12H21M3 6H21M3 18H21"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
 const CloseIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M18 6L6 18M6 6L18 18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
@@ -119,81 +62,36 @@ function renderMessageText(text) {
     const line = lines[i];
     if (line.startsWith("### ")) {
       elements.push(
-        <h3
-          key={i}
-          style={{
-            color: "#a8842f",
-            fontSize: "0.85rem",
-            fontWeight: 700,
-            margin: "10px 0 4px",
-            letterSpacing: "0.04em",
-            textTransform: "uppercase",
-          }}
-        >
+        <h3 key={i} style={{ color: "#a8842f", fontSize: "0.85rem", fontWeight: 700, margin: "10px 0 4px", letterSpacing: "0.04em", textTransform: "uppercase" }}>
           {line.slice(4)}
-        </h3>,
+        </h3>
       );
     } else if (line.startsWith("## ")) {
       elements.push(
-        <h2
-          key={i}
-          style={{
-            color: "#a8842f",
-            fontSize: "0.95rem",
-            fontWeight: 700,
-            margin: "12px 0 5px",
-          }}
-        >
+        <h2 key={i} style={{ color: "#a8842f", fontSize: "0.95rem", fontWeight: 700, margin: "12px 0 5px" }}>
           {line.slice(3)}
-        </h2>,
+        </h2>
       );
     } else if (line.startsWith("**") && line.endsWith("**")) {
       elements.push(
         <p key={i} style={{ fontWeight: 700, margin: "6px 0" }}>
           {line.slice(2, -2)}
-        </p>,
+        </p>
       );
     } else if (line.startsWith("- ") || line.startsWith("• ")) {
       elements.push(
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            gap: "8px",
-            margin: "3px 0",
-            paddingLeft: "4px",
-          }}
-        >
-          <span style={{ color: "#a8842f", marginTop: "1px", flexShrink: 0 }}>
-            ›
-          </span>
+        <div key={i} style={{ display: "flex", gap: "8px", margin: "3px 0", paddingLeft: "4px" }}>
+          <span style={{ color: "#a8842f", marginTop: "1px", flexShrink: 0 }}>›</span>
           <span>{formatInline(line.slice(2))}</span>
-        </div>,
+        </div>
       );
     } else if (/^\d+\.\s/.test(line)) {
       const num = line.match(/^(\d+)\./)[1];
       elements.push(
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            gap: "8px",
-            margin: "3px 0",
-            paddingLeft: "4px",
-          }}
-        >
-          <span
-            style={{
-              color: "#a8842f",
-              fontWeight: 600,
-              minWidth: "18px",
-              flexShrink: 0,
-            }}
-          >
-            {num}.
-          </span>
+        <div key={i} style={{ display: "flex", gap: "8px", margin: "3px 0", paddingLeft: "4px" }}>
+          <span style={{ color: "#a8842f", fontWeight: 600, minWidth: "18px", flexShrink: 0 }}>{num}.</span>
           <span>{formatInline(line.replace(/^\d+\.\s/, ""))}</span>
-        </div>,
+        </div>
       );
     } else if (line.trim() === "") {
       elements.push(<div key={i} style={{ height: "6px" }} />);
@@ -201,7 +99,7 @@ function renderMessageText(text) {
       elements.push(
         <p key={i} style={{ margin: "4px 0", lineHeight: "1.65" }}>
           {formatInline(line)}
-        </p>,
+        </p>
       );
     }
     i++;
@@ -225,14 +123,7 @@ function formatInline(text) {
 
 // ─── Typing Dots ──────────────────────────────────────────────
 const TypingDots = () => (
-  <div
-    style={{
-      display: "flex",
-      gap: "5px",
-      alignItems: "center",
-      padding: "4px 0",
-    }}
-  >
+  <div style={{ display: "flex", gap: "5px", alignItems: "center", padding: "4px 0" }}>
     {[0, 1, 2].map((i) => (
       <div
         key={i}
@@ -258,12 +149,8 @@ export default function Chatbot() {
   const [loading, setLoading] = useState(false);
   const [conversationId, setConversationId] = useState(null);
   const [conversations, setConversations] = useState([]);
-  const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth <= MOBILE_BREAKPOINT,
-  );
-  const [sidebarOpen, setSidebarOpen] = useState(
-    () => window.innerWidth > MOBILE_BREAKPOINT,
-  );
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= MOBILE_BREAKPOINT);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.innerWidth > MOBILE_BREAKPOINT);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -322,7 +209,7 @@ export default function Chatbot() {
             role: m.role,
             content: m.content,
             sources: m.sources || [],
-          })),
+          }))
         );
       }
     } catch (err) {
@@ -359,9 +246,7 @@ export default function Chatbot() {
     try {
       await api.patch(`/ai/conversations/${id}/bookmark`);
       setConversations((prev) =>
-        prev.map((c) =>
-          c._id === id ? { ...c, isBookmarked: !c.isBookmarked } : c,
-        ),
+        prev.map((c) => (c._id === id ? { ...c, isBookmarked: !c.isBookmarked } : c))
       );
     } catch (err) {
       console.error("Bookmark failed:", err);
@@ -394,17 +279,10 @@ export default function Chatbot() {
         fetchConversations(); // Refresh sidebar
       }
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: aiText, sources },
-      ]);
+      setMessages((prev) => [...prev, { role: "assistant", content: aiText, sources }]);
     } catch (err) {
-      const errMsg =
-        err.response?.data?.message || "Connection error. Please try again.";
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: errMsg, isError: true },
-      ]);
+      const errMsg = err.response?.data?.message || "Connection error. Please try again.";
+      setMessages((prev) => [...prev, { role: "assistant", content: errMsg, isError: true }]);
     } finally {
       setLoading(false);
       inputRef.current?.focus();
@@ -829,9 +707,13 @@ export default function Chatbot() {
 
         .vol-textarea {
           flex: 1;
-          background: none;
-          border: none;
-          outline: none;
+          background: transparent !important;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          -webkit-appearance: none;
+          appearance: none;
           color: #24242a;
           font-family: 'DM Sans', sans-serif;
           font-size: 0.9rem;
@@ -841,6 +723,7 @@ export default function Chatbot() {
           line-height: 1.5;
           scrollbar-width: thin;
         }
+        .vol-textarea:focus { box-shadow: none !important; outline: none !important; }
         .vol-textarea::placeholder { color: #9a948a; }
 
         .vol-send-btn {
@@ -965,9 +848,7 @@ export default function Chatbot() {
                 <span className="vol-conv-icon">
                   <ChatIcon />
                 </span>
-                <span className="vol-conv-title">
-                  {conv.title || "Untitled"}
-                </span>
+                <span className="vol-conv-title">{conv.title || "Untitled"}</span>
                 <div className="vol-conv-actions">
                   <button
                     className={`vol-conv-action-btn ${conv.isBookmarked ? "bookmarked" : ""}`}
@@ -999,9 +880,7 @@ export default function Chatbot() {
             <button
               className="vol-menu-btn"
               onClick={() => setSidebarOpen((o) => !o)}
-              aria-label={
-                sidebarOpen ? "Close chat history" : "Open chat history"
-              }
+              aria-label={sidebarOpen ? "Close chat history" : "Open chat history"}
             >
               <MenuIcon />
             </button>
@@ -1017,10 +896,7 @@ export default function Chatbot() {
                   <ScaleIcon />
                 </div>
                 <h2>Voice of Law AI</h2>
-                <p>
-                  Ask any question about Pakistani law. I'll provide accurate,
-                  structured legal guidance.
-                </p>
+                <p>Ask any question about Pakistani law. I'll provide accurate, structured legal guidance.</p>
                 <div className="vol-suggestions">
                   {[
                     "What are my rights if arrested?",
@@ -1044,17 +920,11 @@ export default function Chatbot() {
             ) : (
               messages.map((msg, i) => (
                 <div key={i} className={`vol-msg ${msg.role}`}>
-                  <div
-                    className={`vol-avatar ${msg.role === "user" ? "user-av" : "ai"}`}
-                  >
+                  <div className={`vol-avatar ${msg.role === "user" ? "user-av" : "ai"}`}>
                     {msg.role === "user" ? "YOU" : "AI"}
                   </div>
                   <div className={`vol-bubble ${msg.isError ? "error" : ""}`}>
-                    {msg.role === "assistant" ? (
-                      renderMessageText(msg.content)
-                    ) : (
-                      <p>{msg.content}</p>
-                    )}
+                    {msg.role === "assistant" ? renderMessageText(msg.content) : <p>{msg.content}</p>}
                     {msg.sources && msg.sources.length > 0 && (
                       <div className="vol-sources">
                         <div className="vol-sources-label">References</div>
@@ -1093,22 +963,15 @@ export default function Chatbot() {
                 onChange={(e) => {
                   setInput(e.target.value);
                   e.target.style.height = "auto";
-                  e.target.style.height =
-                    Math.min(e.target.scrollHeight, 120) + "px";
+                  e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
                 }}
                 onKeyDown={handleKeyDown}
               />
-              <button
-                className="vol-send-btn"
-                onClick={sendMessage}
-                disabled={!input.trim() || loading}
-              >
+              <button className="vol-send-btn" onClick={sendMessage} disabled={!input.trim() || loading}>
                 <SendIcon />
               </button>
             </div>
-            <div className="vol-input-hint">
-              Press Enter to send · Shift+Enter for new line
-            </div>
+            <div className="vol-input-hint">Press Enter to send · Shift+Enter for new line</div>
           </div>
         </div>
       </div>
