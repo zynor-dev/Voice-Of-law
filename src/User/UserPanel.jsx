@@ -232,15 +232,15 @@ function DashboardHome({ user, navigate }) {
             margin: 0, fontSize: 22, fontWeight: 800,
             color: "#0f0f0f", letterSpacing: "-0.3px",
           }}>
-            {user?.fullName ? `Counsel ${user.fullName}` : "Counsel"}
+            {user?.fullName ? ` ${user.fullName}` : ""}
           </h2>
           {(user?.barCouncilNumber || user?.courtName) && (
             <p style={{
               margin: "6px 0 0", fontSize: 11, fontWeight: 700,
               color: GOLD, letterSpacing: "0.12em", textTransform: "uppercase",
             }}>
-              {user?.barCouncilNumber ? `Bar No. ${user.barCouncilNumber}` : "Senior Partner"}
-              {user?.courtName && ` • ${user.courtName}`}
+              {user?.barCouncilNumber ? `Bar No. ${user.barCouncilNumber}` : ""}
+              {user?.courtName && `  ${user.courtName}`}
             </p>
           )}
         </div>
@@ -505,7 +505,7 @@ export default function UserPanel() {
             <div style={{ flex:1, minWidth:0 }}>
               <p style={{ margin:0, fontSize:12, fontWeight:600, color:WHITE,
                 overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                {user?.fullName || user?.email?.split("@")[0] || "Counsel"}
+                {user?.fullName || user?.email?.split("@")[0] || ""}
               </p>
               <p style={{ margin:0, fontSize:10, color:MUTED }}>Senior Partner</p>
             </div>
