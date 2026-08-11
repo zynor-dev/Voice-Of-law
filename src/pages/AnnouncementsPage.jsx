@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import "../styles/AnnouncementsPage.css";
 
-const API_BASE = "https://voiceoflaw-backend.onrender.com/api";
+const API_BASE = "https://api.voiceoflaws.com/api";
 
 const AnnouncementsPage = () => {
   const [activeTab, setActiveTab] = useState("TENDERS");
@@ -19,7 +19,7 @@ const AnnouncementsPage = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_BASE}/announcements?category=${activeTab}`
+        `${API_BASE}/announcements?category=${activeTab}`,
       );
       if (!response.ok) {
         throw new Error("Failed to fetch announcements");
@@ -242,7 +242,7 @@ const AnnouncementsPage = () => {
             {announcements.map((announcement) => (
               <div
                 className={`announcement-card ${getPriorityColor(
-                  announcement.priority
+                  announcement.priority,
                 )}`}
                 key={announcement.id}
               >

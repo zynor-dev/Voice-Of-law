@@ -22,7 +22,7 @@ const DashboardArticlesFeed = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "https://voiceoflaw-backend.onrender.com/api/articles?limit=4"
+        "https://api.voiceoflaws.com/api/articles?limit=4",
       );
       setArticles(response.data);
     } catch (error) {

@@ -1,5 +1,5 @@
 // DocumentVault.jsx - COMPLETE WITH ALL FIXES
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   FaPlus,
   FaSearch,
@@ -29,81 +29,33 @@ import {
   FaCopy,
 } from "react-icons/fa";
 import "../Style/Vault.css";
+import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 const DocumentVault = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showUploadModal, setShowUploadModal] = useState(false);
   const fileInputRef = useRef(null);
 
-  const [vaultItems, setVaultItems] = useState([
-    {
-      id: 1,
-      title: "Property Sale Agreement - Ahmed vs Khan",
-      type: "document",
-      fileType: "pdf",
-      source: "case",
-      caseId: "C001",
-      dateAdded: "2024-01-15",
-      size: "2.4 MB",
-      isFavorite: true,
-      tags: ["property", "agreement", "urgent"],
-      description:
-        "Legal agreement for property sale between Ahmad Khan and Malik Ahmed",
-      addedBy: "user",
-    },
-    {
-      id: 2,
-      title: "AI Legal Research - Criminal Law Precedents",
-      type: "chat",
-      source: "chatbot",
-      dateAdded: "2024-01-14",
-      isFavorite: false,
-      tags: ["research", "criminal law"],
-      description:
-        "Comprehensive research on criminal law precedents in Pakistan",
-      chatContent:
-        "Criminal law in Pakistan is governed by the Pakistan Penal Code 1860...",
-      addedBy: "chatbot",
-    },
-    {
-      id: 3,
-      title: "Contract Law Handbook - Legal Library",
-      type: "reference",
-      source: "library",
-      dateAdded: "2024-01-13",
-      isFavorite: true,
-      tags: ["contract law", "reference"],
-      description:
-        "Essential guide to contract law principles and applications",
-      addedBy: "library",
-    },
-    {
-      id: 4,
-      title: "New Security Updates - Platform Announcement",
-      type: "update",
-      source: "updates",
-      dateAdded: "2024-01-12",
-      isFavorite: false,
-      tags: ["security", "announcement"],
-      description: "Important security enhancements and new features announced",
-      addedBy: "system",
-    },
-    {
-      id: 5,
-      title: "Meeting Notes - Client Consultation",
-      type: "note",
-      source: "notes",
-      dateAdded: "2024-01-11",
-      isFavorite: true,
-      tags: ["meeting", "client"],
-      description: "Discussion points and action items from client meeting",
-      noteContent:
-        "Client discussed property dispute case. Key points: 1. Timeline, 2. Documentation needed...",
-      addedBy: "user",
-    },
-  ]);
+  const [vaultItems, setVaultItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const loadVault = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/vault");
+      setVaultItems(response.data?.data?.items || response.data?.items || []);
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not load your Document Vault.");
+    } finally { setLoading(false); }
+  };
+
+  useEffect(() => { loadVault(); }, []);
 
   const categories = [
     {
@@ -183,19 +135,26 @@ const DocumentVault = () => {
     }
   };
 
-  const toggleFavorite = (itemId) => {
-    setVaultItems((items) =>
-      items.map((item) =>
-        item.id === itemId ? { ...item, isFavorite: !item.isFavorite } : item
-      )
-    );
+  const toggleFavorite = async (item) => {
+    try {
+      if (item.entityType === "conversation") {
+        await api.patch(`/ai/conversations/${item.target.conversationId}/bookmark`);
+      } else if (item.entityType === "message") {
+        await api.patch(`/ai/conversations/${item.target.conversationId}/messages/${item.target.messageId}/bookmark`);
+      } else if (item.entityType === "case") {
+        await api.patch(`/cases/${item.target.caseId}/bookmark`);
+      } else {
+        await api.patch(`/vault/${item.id.replace("vault-", "")}/favorite`);
+      }
+      await loadVault();
+    } catch (err) { setError(err.response?.data?.message || "Could not update favourite."); }
   };
 
   const filteredItems = vaultItems.filter((item) => {
     const matchesSearch =
       item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.tags.some((tag) =>
+      (item.description || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.tags || []).some((tag) =>
         tag.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
@@ -211,26 +170,47 @@ const DocumentVault = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const files = Array.from(event.target.files);
-    files.forEach((file) => {
-      const newItem = {
-        id: Date.now() + Math.random(),
-        title: file.name,
-        type: "document",
-        fileType: file.name.split(".").pop().toLowerCase(),
-        source: "upload",
-        dateAdded: new Date().toISOString().split("T")[0],
-        size: (file.size / (1024 * 1024)).toFixed(2) + " MB",
-        isFavorite: false,
-        tags: ["uploaded"],
-        description: `Uploaded file: ${file.name}`,
-        addedBy: "user",
-      };
-      setVaultItems((prev) => [newItem, ...prev]);
-    });
-    setShowUploadModal(false);
+    if (!files.length) return;
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
+    try {
+      await api.post("/vault/upload", formData, { headers: { "Content-Type": "multipart/form-data" } });
+      setShowUploadModal(false);
+      event.target.value = "";
+      await loadVault();
+    } catch (err) { setError(err.response?.data?.message || "Upload failed. Please try again."); }
   };
+
+  const openItem = async (item) => {
+    if (item.entityType === "conversation" || item.entityType === "message") {
+      navigate("/user-panel/chatbot", { state: item.target });
+      return;
+    }
+    if (item.entityType === "case") {
+      navigate(`/user-panel/cases/${item.target.caseId}`);
+      return;
+    }
+    if (item.externalUrl) return window.open(item.externalUrl, "_blank", "noopener");
+    if (!item.fileEndpoint) return;
+    try {
+      const response = await api.get(item.fileEndpoint, { responseType: "blob" });
+      const url = URL.createObjectURL(response.data);
+      window.open(url, "_blank", "noopener");
+      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) { setError("Could not open this document."); }
+  };
+
+  const deleteItem = async (item) => {
+    if (item.source !== "vault" || !window.confirm("Delete this document from your Vault?")) return;
+    try {
+      await api.delete(`/vault/${item.id.replace("vault-", "")}`);
+      setVaultItems((items) => items.filter((entry) => entry.id !== item.id));
+    } catch (err) { setError(err.response?.data?.message || "Could not delete this document."); }
+  };
+
+  const formatSize = (size) => size ? `${(size / (1024 * 1024)).toFixed(size >= 1024 * 1024 ? 1 : 2)} MB` : "—";
 
   const handleUploadClick = () => {
     setShowUploadModal(true);
@@ -250,22 +230,22 @@ const DocumentVault = () => {
           <span>{item.addedBy}</span>
           <span>•</span>
           <span>{new Date(item.dateAdded).toLocaleDateString()}</span>
-          {item.size && (
+          {item.sizeBytes && (
             <>
               <span>•</span>
-              <span>{item.size}</span>
+              <span>{formatSize(item.sizeBytes)}</span>
             </>
           )}
         </div>
       </div>
 
       <div className="row-tags">
-        {item.tags.slice(0, 2).map((tag, index) => (
+        {(item.tags || []).slice(0, 2).map((tag, index) => (
           <span key={index} className="tag-small">
             {tag}
           </span>
         ))}
-        {item.tags.length > 2 && (
+        {(item.tags || []).length > 2 && (
           <span className="tag-more">+{item.tags.length - 2}</span>
         )}
       </div>
@@ -273,17 +253,18 @@ const DocumentVault = () => {
       <div className="row-actions">
         <button
           className={`favorite-btn ${item.isFavorite ? "active" : ""}`}
-          onClick={() => toggleFavorite(item.id)}
+          onClick={() => toggleFavorite(item)}
+          aria-label={item.isFavorite ? "Remove from favourites" : "Add to favourites"}
         >
           {item.isFavorite ? <FaHeart /> : <FaRegHeart />}
         </button>
-        <button className="action-btn-small">
+        <button className="action-btn-small" onClick={() => openItem(item)}>
           <FaEye />
         </button>
-        <button className="action-btn-small">
+        <button className="action-btn-small" onClick={() => openItem(item)}>
           <FaDownload />
         </button>
-        <button className="action-btn-small danger">
+        <button className="action-btn-small danger" onClick={() => deleteItem(item)} disabled={item.source !== "vault"}>
           <FaTrash />
         </button>
       </div>
@@ -323,7 +304,10 @@ const DocumentVault = () => {
       </div>
 
       <div className="vault-content">
-        {filteredItems.length === 0 ? (
+        {error && <div className="vault-error" role="alert">{error}</div>}
+        {loading ? (
+          <div className="empty-state"><h3>Loading your documents…</h3></div>
+        ) : filteredItems.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">
               <FaFolder />
@@ -390,7 +374,7 @@ const DocumentVault = () => {
                 multiple
                 onChange={handleFileUpload}
                 style={{ display: "none" }}
-                accept=".pdf,.doc,.docx,.txt,.jpg,.png,.gif"
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
               />
             </div>
           </div>

@@ -38,10 +38,10 @@ const FullArticleDetail = () => {
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `https://voiceoflaw-backend.onrender.com/api/articles/${id}`,
+        `https://api.voiceoflaws.com/api/articles/${id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (response.data.isExternal) {
@@ -63,7 +63,7 @@ const FullArticleDetail = () => {
   const loadRelatedArticles = async (category) => {
     try {
       const response = await axios.get(
-        `https://voiceoflaw-backend.onrender.com/api/articles?category=${category}&limit=4`
+        `https://api.voiceoflaws.com/api/articles?category=${category}&limit=4`,
       );
       setRelatedArticles(response.data.filter((a) => a._id !== id).slice(0, 3));
     } catch (err) {
@@ -77,13 +77,13 @@ const FullArticleDetail = () => {
 
     const shareUrls = {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-        url
+        url,
       )}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-        url
+        url,
       )}&text=${encodeURIComponent(text)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-        url
+        url,
       )}`,
     };
 
@@ -229,7 +229,7 @@ const FullArticleDetail = () => {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -318,7 +318,7 @@ const FullArticleDetail = () => {
                         >
                           {tag}
                         </span>
-                      )
+                      ),
                     )}
                   </div>
                 </div>
@@ -342,7 +342,7 @@ const FullArticleDetail = () => {
                         key={related._id}
                         onClick={() =>
                           navigate(
-                            `/user-panel/legal-news-articles/${related._id}`
+                            `/user-panel/legal-news-articles/${related._id}`,
                           )
                         }
                         className="flex gap-4 pb-5 border-b last:border-0 cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-all hover:scale-105"
@@ -366,7 +366,7 @@ const FullArticleDetail = () => {
                               {
                                 day: "numeric",
                                 month: "short",
-                              }
+                              },
                             )}
                           </p>
                         </div>

@@ -1,7 +1,7 @@
 // LegalLibrary.jsx - COMPLETE FIX using api.js service
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaDownload, FaClock } from "react-icons/fa";
-import { booksAPI, handleApiError } from "../../services/api";
+import { booksAPI, getServerOrigin, handleApiError } from "../../services/api";
 import "../Style/LegalLibrary.css";
 
 const LegalLibrary = () => {
@@ -59,12 +59,15 @@ const LegalLibrary = () => {
       console.log("📥 Starting download for book:", bookId);
 
       // Get download URL from api.js
-      const downloadUrl = booksAPI.download(bookId);
+      const response = await booksAPI.download(bookId);
+      const fileUrl = response.data?.fileUrl;
+      if (!fileUrl) throw new Error("The file is not available for this book.");
+      const downloadUrl = fileUrl.startsWith("http") ? fileUrl : `${getServerOrigin()}${fileUrl}`;
 
       console.log("🔗 Download URL:", downloadUrl);
 
       // Open download in new tab with token
-      window.open(`${downloadUrl}?token=${token}`, "_blank");
+      window.open(downloadUrl, "_blank", "noopener");
 
       setTimeout(() => {
         alert(`Download started: ${bookTitle}`);
@@ -152,7 +155,7 @@ const LegalLibrary = () => {
             <div key={item._id} className="resource-card">
               <div className="book-image">
                 <img
-                  src={`https://voiceoflaw-backend.onrender.com${item.image}`}
+                  src={item.coverImage ? (item.coverImage.startsWith("http") ? item.coverImage : `${getServerOrigin()}${item.coverImage}`) : ""}
                   alt={item.title}
                   className="book-cover-img"
                   onError={(e) => {
@@ -174,8 +177,6 @@ const LegalLibrary = () => {
                 {item.fileSize && (
                   <p className="book-size">Size: {item.fileSize}</p>
                 )}
-
-               
 
                 {item.downloads > 0 && (
                   <p className="book-downloads">Downloads: {item.downloads}</p>

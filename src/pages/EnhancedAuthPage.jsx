@@ -7,7 +7,7 @@ import { API_V1_BASE } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 
 const GOOGLE_CLIENT_ID =
-  "280320345760-grosn2ifh7rcnk6bju54gcpi57v2n23l.apps.googleusercontent.com";
+  "340049121165-gi7nu1l4ba8u9ompc01cbbs3il07ouoo.apps.googleusercontent.com";
 
 const EnhancedAuthPage = () => {
   const { mode } = useParams();

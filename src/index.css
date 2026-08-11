@@ -4,7 +4,7 @@
    render transparent when their old stylesheet is loaded without UserPanel.css. */
 :root {
   --primary-dark-bg: #1e1e22;
-  --accent-gold: #a67c2e;
+  --accent-gold:#c79f44;
   --card-bg-light: #ffffff;
   --dashboard-bg: #f5f5f7;
   --text-dark: #1f1f24;
@@ -36,7 +36,7 @@
   --shadow-vol-gold: 0 4px 24px rgba(199, 159, 68, 0.18);
 }
 
-/* ─── Google Font import ──────────────────────────────────────── */
+/* ─── Google Fosnt import ──────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap');
 

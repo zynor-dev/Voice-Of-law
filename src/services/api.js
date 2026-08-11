@@ -5,7 +5,7 @@ function normalizeApiV1Base(raw) {
   const trimmed = (raw || "").replace(/\/$/, "");
   if (!trimmed) {
     // 👇 Live URL ko hata kar local port daal diya
-    return "https://voice-of-law-backend.onrender.com/api/v1";
+    return "https://api.voiceoflaws.com/api/v1";
   }
   if (trimmed.endsWith("/v1")) return trimmed;
   if (trimmed.endsWith("/api")) return `${trimmed}/v1`;
@@ -22,7 +22,7 @@ export function getServerOrigin() {
     );
     return `${u.protocol}//${u.host}`;
   } catch {
-    return "https://voice-of-law-backend.onrender.com"; // Fallback to the backend URL if URL parsing fails
+    return "https://api.voiceoflaws.com"; // Fallback to the backend URL if URL parsing fails
   }
 }
 
@@ -95,6 +95,10 @@ export const adminAPI = {
   updateUser: (id, body) => api.put(`/admin/users/${id}`, body),
   deleteUser: (id) => api.delete(`/admin/users/${id}`),
   changeUserRole: (id, role) => api.patch(`/admin/users/${id}/role`, { role }),
+  listDraftTemplates: () => api.get("/admin/templates"),
+  createDraftTemplate: (body) => api.post("/admin/templates", body),
+  updateDraftTemplate: (id, body) => api.put(`/admin/templates/${id}`, body),
+  deleteDraftTemplate: (id) => api.delete(`/admin/templates/${id}`),
 };
 
 // === CALENDAR ===
@@ -114,6 +118,8 @@ export const casesAPI = {
   create: (caseData) => api.post("/cases", caseData),
   update: (id, caseData) => api.put(`/cases/${id}`, caseData),
   updateStatus: (id, status) => api.patch(`/cases/${id}/status`, { status }),
+  toggleBookmark: (id) => api.patch(`/cases/${id}/bookmark`),
+  exportPdf: (id) => api.post(`/cases/${id}/export-pdf`),
   delete: (id) => api.delete(`/cases/${id}`),
 
   // File and note operations
@@ -232,38 +238,42 @@ export const announcementsAPI = {
 export const booksAPI = {
   getAll: (category, search) => {
     const params = {};
-    if (category) params.category = category;
+    if (category && category !== "Books") params.category = category;
     if (search) params.search = search;
-    return api.get("/books", { params });
+    return api.get("/library", { params });
   },
   create: (data) => {
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
-      if ((key === "image" || key === "pdfFile") && data[key] instanceof File) {
-        formData.append(key, data[key]);
+      if ((key === "image" || key === "coverImage") && data[key] instanceof File) {
+        formData.append("coverImage", data[key]);
+      } else if ((key === "pdfFile" || key === "bookFile") && data[key] instanceof File) {
+        formData.append("bookFile", data[key]);
       } else if (data[key] !== undefined && data[key] !== null) {
         formData.append(key, data[key]);
       }
     });
-    return api.post("/books", formData, {
+    return api.post("/admin/library", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
   update: (id, data) => {
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
-      if ((key === "image" || key === "pdfFile") && data[key] instanceof File) {
-        formData.append(key, data[key]);
+      if ((key === "image" || key === "coverImage") && data[key] instanceof File) {
+        formData.append("coverImage", data[key]);
+      } else if ((key === "pdfFile" || key === "bookFile") && data[key] instanceof File) {
+        formData.append("bookFile", data[key]);
       } else if (data[key] !== undefined && data[key] !== null) {
         formData.append(key, data[key]);
       }
     });
-    return api.put(`/books/${id}`, formData, {
+    return api.put(`/admin/library/${id}`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
   },
-  delete: (id) => api.delete(`/books/${id}`),
-  download: (id) => `${API_V1_BASE}/books/${id}/download`,
+  delete: (id) => api.delete(`/admin/library/${id}`),
+  download: (id) => api.get(`/library/${id}/download`),
 };
 
 // === DASHBOARD STATS APIs ===
@@ -328,8 +338,13 @@ export const draftsAPI = {
   update: (id, data) => api.put(`/drafts/${id}`, data),
   delete: (id) => api.delete(`/drafts/${id}`),
   generate: (data) => api.post("/drafts/generate", data),
+  generateAi: (data) => api.post("/drafts/generate-ai", data),
   export: (id, format) => api.post(`/drafts/${id}/export`, { format }),
-  listTemplates: () => api.get("/drafts/templates"),
+  listTemplates: (params) => api.get("/drafts/templates", { params }),
+  getTemplate: (id) => api.get(`/drafts/templates/${id}`),
+  toggleFavorite: (id) => api.post(`/drafts/${id}/favorite`),
+  listVersions: (id) => api.get(`/drafts/${id}/versions`),
+  restoreVersion: (id, versionId) => api.post(`/drafts/${id}/versions/${versionId}/restore`),
 };
 
 // === UTILITY FUNCTIONS ===

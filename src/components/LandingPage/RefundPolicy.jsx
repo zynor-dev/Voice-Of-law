@@ -6,19 +6,19 @@ export default function RefundPolicy() {
     <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "#e5e5e5", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
       <div style={{ background: "#1a1a1a", borderBottom: "1px solid #2a2a2a", padding: "16px 0" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link to="/" style={{ color: "#A67C2E", fontWeight: 800, fontSize: 20, textDecoration: "none", letterSpacing: 1 }}>VOICE OF LAW</Link>
+          <Link to="/" style={{ color: "#c79f44", fontWeight: 800, fontSize: 20, textDecoration: "none", letterSpacing: 1 }}>VOICE OF LAW</Link>
           <Link to="/" style={{ color: "#999", fontSize: 13, textDecoration: "none" }}>← Back to Home</Link>
         </div>
       </div>
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px 80px" }}>
-        <p style={{ color: "#A67C2E", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>Legal</p>
+        <p style={{ color: "#c79f44", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>Legal</p>
         <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Cancellation & Refund Policy</h1>
         <p style={{ color: "#666", fontSize: 13, margin: "0 0 40px" }}>Last updated: {new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
         <div style={{ background: "#1a1a1a", border: "1px solid #2a2a2a", borderRadius: 12, padding: "28px 32px", marginBottom: 32 }}>
           <p style={{ color: "#bbb", lineHeight: 1.8, fontSize: 14, margin: 0 }}>
-            At <strong style={{ color: "#A67C2E" }}>Voice of Law</strong>, we want you to be completely satisfied with our services.
+            At <strong style={{ color: "#c79f44" }}>Voice of Law</strong>, we want you to be completely satisfied with our services.
             This policy explains our cancellation and refund process clearly and fairly.
           </p>
         </div>
@@ -87,7 +87,7 @@ export default function RefundPolicy() {
           },
         ].map((section, i) => (
           <div key={i} style={{ marginBottom: 32 }}>
-            <h2 style={{ color: "#A67C2E", fontSize: 18, fontWeight: 700, margin: "0 0 14px", borderLeft: "3px solid #A67C2E", paddingLeft: 14 }}>
+            <h2 style={{ color: "#c79f44", fontSize: 18, fontWeight: 700, margin: "0 0 14px", borderLeft: "3px solid #c79f44", paddingLeft: 14 }}>
               {section.title}
             </h2>
             <ul style={{ margin: 0, padding: "0 0 0 18px" }}>
@@ -112,13 +112,13 @@ export default function OwnershipStatement() {
     <div style={{ background: "#0f0f0f", minHeight: "100vh", color: "#e5e5e5", fontFamily: "'Segoe UI', Arial, sans-serif" }}>
       <div style={{ background: "#1a1a1a", borderBottom: "1px solid #2a2a2a", padding: "16px 0" }}>
         <div style={{ maxWidth: 900, margin: "0 auto", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Link to="/" style={{ color: "#A67C2E", fontWeight: 800, fontSize: 20, textDecoration: "none", letterSpacing: 1 }}>VOICE OF LAW</Link>
+          <Link to="/" style={{ color: "#c79f44", fontWeight: 800, fontSize: 20, textDecoration: "none", letterSpacing: 1 }}>VOICE OF LAW</Link>
           <Link to="/" style={{ color: "#999", fontSize: 13, textDecoration: "none" }}>← Back to Home</Link>
         </div>
       </div>
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px 24px 80px" }}>
-        <p style={{ color: "#A67C2E", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>Legal</p>
+        <p style={{ color: "#c79f44", fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 8px" }}>Legal</p>
         <h1 style={{ fontSize: 36, fontWeight: 800, color: "#fff", margin: "0 0 8px" }}>Ownership Statement</h1>
         <p style={{ color: "#666", fontSize: 13, margin: "0 0 40px" }}>Last updated: {new Date().toLocaleDateString('en-PK', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
 
@@ -177,7 +177,7 @@ export default function OwnershipStatement() {
           },
         ].map((section, i) => (
           <div key={i} style={{ marginBottom: 32 }}>
-            <h2 style={{ color: "#A67C2E", fontSize: 18, fontWeight: 700, margin: "0 0 14px", borderLeft: "3px solid #A67C2E", paddingLeft: 14 }}>
+            <h2 style={{ color: "#c79f44", fontSize: 18, fontWeight: 700, margin: "0 0 14px", borderLeft: "3px solid #c79f44", paddingLeft: 14 }}>
               {section.title}
             </h2>
             <ul style={{ margin: 0, padding: "0 0 0 18px" }}>

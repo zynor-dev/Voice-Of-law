@@ -15,12 +15,16 @@ import {
   FaFilePdf,
   FaFileAlt,
   FaPlus,
+  FaDownload as FaCasePdf,
+  FaStar,
+  FaRegStar,
 } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   casesAPI,
   filesAPI,
   draftsAPI,
+  getServerOrigin,
   handleApiError,
 } from "../../services/api";
 import "../Style/CaseDetails.css";
@@ -467,6 +471,28 @@ export default function CaseDetails() {
     }
   };
 
+  const toggleCaseBookmark = async () => {
+    try {
+      const response = await casesAPI.toggleBookmark(caseId);
+      const isBookmarked = Boolean(response.data?.data?.isBookmarked ?? response.data?.isBookmarked);
+      setCaseData((current) => ({ ...current, isBookmarked }));
+    } catch (err) {
+      setError(handleApiError(err));
+    }
+  };
+
+  const downloadCasePdf = async () => {
+    try {
+      const response = await casesAPI.exportPdf(caseId);
+      const fileUrl = response.data?.fileUrl;
+      if (!fileUrl) throw new Error("PDF was not created.");
+      const url = fileUrl.startsWith("http") ? fileUrl : `${getServerOrigin()}${fileUrl}`;
+      window.open(url, "_blank", "noopener");
+    } catch (err) {
+      setError(handleApiError(err));
+    }
+  };
+
   const handleHeroUpload = async (fileList) => {
     const files = Array.from(fileList || []);
     if (!files.length) return;
@@ -524,6 +550,11 @@ export default function CaseDetails() {
           <FaArrowLeft /> Cases
         </button>
         <div className="case-preview-actions">
+          <button className="case-preview-edit" onClick={downloadCasePdf}><FaCasePdf /> Download PDF</button>
+          <button className="case-preview-edit" onClick={toggleCaseBookmark}>
+            {caseData.isBookmarked ? <FaStar /> : <FaRegStar />}
+            {caseData.isBookmarked ? "Favourited" : "Add to favourites"}
+          </button>
           <button
             className="case-preview-edit"
             onClick={() =>

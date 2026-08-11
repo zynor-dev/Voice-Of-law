@@ -18,6 +18,10 @@ import {
   FaSortUp,
   FaSortDown,
   FaFilter,
+  FaEllipsisV,
+  FaDownload,
+  FaStar,
+  FaRegStar,
 } from "react-icons/fa";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -103,6 +107,7 @@ export default function MyCases() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null); // { id, title }
   const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [openCaseMenu, setOpenCaseMenu] = useState(null);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -228,6 +233,27 @@ export default function MyCases() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const downloadCasePdf = async (event, caseId) => {
+    event.stopPropagation();
+    try {
+      const response = await casesAPI.exportPdf(caseId);
+      const fileUrl = response.data?.fileUrl;
+      if (!fileUrl) throw new Error("PDF was not created.");
+      window.open(fileUrl.startsWith("http") ? fileUrl : `https://api.voiceoflaws.com${fileUrl}`, "_blank", "noopener");
+    } catch (err) { setError(handleApiError(err)); }
+    finally { setOpenCaseMenu(null); }
+  };
+
+  const toggleCaseFavourite = async (event, caseId) => {
+    event.stopPropagation();
+    try {
+      const response = await casesAPI.toggleBookmark(caseId);
+      const isBookmarked = Boolean(response.data?.data?.isBookmarked ?? response.data?.isBookmarked);
+      setCases((current) => current.map((item) => item._id === caseId ? { ...item, isBookmarked } : item));
+    } catch (err) { setError(handleApiError(err)); }
+    finally { setOpenCaseMenu(null); }
   };
 
   const gate = (_action, fn) => () => fn();
@@ -703,63 +729,15 @@ export default function MyCases() {
                           c.updatedAt || c.createdAt,
                         ).toLocaleDateString()}
                       </p>
-                      <div className="flex gap-1.5">
-                        {[
-                          {
-                            icon: FaEye,
-                            title: "View",
-                            fn: (e) => {
-                              e.stopPropagation();
-                              navigate(`/user-panel/cases/${c._id}`, {
-                                state: { caseData: c },
-                              });
-                            },
-                            color: "#1d4ed8",
-                          },
-                          {
-                            icon: FaEdit,
-                            title: "Edit",
-                            fn: (e) => {
-                              e.stopPropagation();
-                              gate("Edit Case", () =>
-                                navigate("/user-panel/cases/edit", {
-                                  state: { caseData: c },
-                                }),
-                              )();
-                            },
-                            color: G,
-                          },
-                          {
-                            icon: FaTrash,
-                            title: "Delete",
-                            fn: (e) => {
-                              e.stopPropagation();
-                              gate("Delete Case", () => {
-                                setDeleteTarget({ id: c._id, title: c.title });
-                                setDeleteConfirm("");
-                              })();
-                            },
-                            color: "#dc2626",
-                          },
-                        ].map(({ icon: Icon, title, fn, color }) => (
-                          <button
-                            key={title}
-                            title={title}
-                            onClick={fn}
-                            className="flex h-7 w-7 items-center justify-center rounded-lg transition"
-                            style={{ color: "rgba(0,0,0,0.3)" }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.background = `${color}14`;
-                              e.currentTarget.style.color = color;
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = "transparent";
-                              e.currentTarget.style.color = "rgba(0,0,0,0.3)";
-                            }}
-                          >
-                            <Icon style={{ fontSize: 11 }} />
-                          </button>
-                        ))}
+                      <div className="relative">
+                        <button title="Case actions" onClick={(event) => { event.stopPropagation(); setOpenCaseMenu(openCaseMenu === c._id ? null : c._id); }} className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ color: "rgba(0,0,0,0.45)" }}><FaEllipsisV style={{ fontSize: 12 }} /></button>
+                        {openCaseMenu === c._id && <div onClick={(event) => event.stopPropagation()} className="absolute right-0 bottom-8 z-20 w-40 rounded-lg border bg-white p-1 shadow-lg text-xs">
+                          <button onClick={(event) => { event.stopPropagation(); navigate(`/user-panel/cases/${c._id}`, { state: { caseData: c } }); }} className="w-full px-3 py-2 text-left hover:bg-amber-50"><FaEye className="inline mr-2" />View</button>
+                          <button onClick={(event) => { event.stopPropagation(); navigate("/user-panel/cases/edit", { state: { caseData: c } }); }} className="w-full px-3 py-2 text-left hover:bg-amber-50"><FaEdit className="inline mr-2" />Edit</button>
+                          <button onClick={(event) => toggleCaseFavourite(event, c._id)} className="w-full px-3 py-2 text-left hover:bg-amber-50">{c.isBookmarked ? <FaStar className="inline mr-2" /> : <FaRegStar className="inline mr-2" />}{c.isBookmarked ? "Unfavourite" : "Add to favourites"}</button>
+                          <button onClick={(event) => downloadCasePdf(event, c._id)} className="w-full px-3 py-2 text-left hover:bg-amber-50"><FaDownload className="inline mr-2" />Download PDF</button>
+                          <button onClick={(event) => { event.stopPropagation(); setOpenCaseMenu(null); setDeleteTarget({ id: c._id, title: c.title }); setDeleteConfirm(""); }} className="w-full px-3 py-2 text-left text-red-600 hover:bg-red-50"><FaTrash className="inline mr-2" />Delete</button>
+                        </div>}
                       </div>
                     </div>
                   </div>

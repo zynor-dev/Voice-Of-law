@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "../styles/About.css";
 import axios from "axios";
 
-const API_BASE_URL = "https://voiceoflaw-backend.onrender.com/api";
+const API_BASE_URL = "https://api.voiceoflaws.com/api";
 
 const blogCategories = ["Law", "Cases", "Books", "ACTS"];
 
@@ -24,7 +24,7 @@ const BlogSection = () => {
       setLoading(true);
       setError(null);
       const response = await axios.get(
-        `${API_BASE_URL}/more-about-cards/category/${category}`
+        `${API_BASE_URL}/more-about-cards/category/${category}`,
       );
       setCurrentPickedCards(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
@@ -39,17 +39,17 @@ const BlogSection = () => {
   const fetchLatestAndFeatured = async () => {
     try {
       const latestResponse = await axios.get(
-        `${API_BASE_URL}/more-about-cards`
+        `${API_BASE_URL}/more-about-cards`,
       );
       setLatestPosts(
         Array.isArray(latestResponse.data)
           ? latestResponse.data.slice(0, 4)
-          : []
+          : [],
       );
       setFeaturedPosts(
         Array.isArray(latestResponse.data)
           ? latestResponse.data.slice(0, 3)
-          : []
+          : [],
       );
     } catch (err) {
       console.error("Error fetching latest/featured:", err);

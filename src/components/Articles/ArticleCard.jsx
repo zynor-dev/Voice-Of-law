@@ -132,7 +132,7 @@ const PublicArticlePreview = () => {
   const loadArticle = async () => {
     try {
       const response = await fetch(
-        `https://voiceoflaw-backend.onrender.com/api/articles/${id}`
+        `https://api.voiceoflaws.com/api/articles/${id}`,
       );
       const data = await response.json();
 
@@ -142,7 +142,7 @@ const PublicArticlePreview = () => {
         // If it's an external article, show message
         if (data.isExternal) {
           alert(
-            "This is an external article. Please visit the source website."
+            "This is an external article. Please visit the source website.",
           );
           navigate("/");
         }
@@ -259,7 +259,7 @@ const PublicArticlePreview = () => {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -369,12 +369,12 @@ const FullArticleDetail = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `https://voiceoflaw-backend.onrender.com/api/articles/${id}`,
+        `https://api.voiceoflaws.com/api/articles/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       const data = await response.json();
 
@@ -395,7 +395,7 @@ const FullArticleDetail = () => {
   const loadRelatedArticles = async (category) => {
     try {
       const response = await fetch(
-        `https://voiceoflaw-backend.onrender.com/api/articles?category=${category}&limit=3`
+        `https://api.voiceoflaws.com/api/articles?category=${category}&limit=3`,
       );
       const data = await response.json();
       setRelatedArticles(data.filter((a) => a._id !== id).slice(0, 3));
@@ -489,7 +489,7 @@ const FullArticleDetail = () => {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -574,7 +574,7 @@ const FullArticleDetail = () => {
                           {
                             day: "numeric",
                             month: "short",
-                          }
+                          },
                         )}
                       </p>
                     </div>
@@ -603,7 +603,7 @@ const ArticleFeed = () => {
   const loadArticles = async () => {
     try {
       const response = await fetch(
-        "https://voiceoflaw-backend.onrender.com/api/articles?limit=4"
+        "https://api.voiceoflaws.com/api/articles?limit=4",
       );
       const data = await response.json();
       setArticles(data);

@@ -31,7 +31,7 @@ export default function TermsAndConditions() {
           <Link
             to="/"
             style={{
-              color: "#A67C2E",
+              color: "#c79f44",
               fontWeight: 800,
               fontSize: 20,
               textDecoration: "none",
@@ -54,7 +54,7 @@ export default function TermsAndConditions() {
       >
         <p
           style={{
-            color: "#A67C2E",
+            color: "#c79f44",
             fontSize: 12,
             fontWeight: 600,
             letterSpacing: "0.1em",
@@ -96,7 +96,7 @@ export default function TermsAndConditions() {
             style={{ color: "#bbb", lineHeight: 1.8, fontSize: 14, margin: 0 }}
           >
             Welcome to{" "}
-            <strong style={{ color: "#A67C2E" }}>Voice of Law</strong>. By
+            <strong style={{ color: "#c79f44" }}>Voice of Law</strong>. By
             accessing or using our platform, you agree to be bound by these
             Terms and Conditions. Please read them carefully before using our
             services. These terms apply to all users including lawyers, legal
@@ -202,11 +202,11 @@ export default function TermsAndConditions() {
           <div key={i} style={{ marginBottom: 32 }}>
             <h2
               style={{
-                color: "#A67C2E",
+                color: "#c79f44",
                 fontSize: 18,
                 fontWeight: 700,
                 margin: "0 0 14px",
-                borderLeft: "3px solid #A67C2E",
+                borderLeft: "3px solid #c79f44",
                 paddingLeft: 14,
               }}
             >

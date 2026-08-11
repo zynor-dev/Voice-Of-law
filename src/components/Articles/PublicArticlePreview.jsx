@@ -26,7 +26,7 @@ const PublicArticlePreview = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `https://voiceoflaw-backend.onrender.com/api/articles/${id}`
+        `https://api.voiceoflaws.com/api/articles/${id}`,
       );
 
       if (response.data.isExternal) {
@@ -175,7 +175,7 @@ const PublicArticlePreview = () => {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </p>
                     </div>

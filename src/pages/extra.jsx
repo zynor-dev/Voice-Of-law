@@ -40,7 +40,7 @@ const Home = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) =>
-        prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1
+        prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1,
       );
     }, 5000);
     return () => clearInterval(interval);
@@ -54,7 +54,7 @@ const Home = () => {
     try {
       setLoadingArticles(true);
       const response = await axios.get(
-        "https://voiceoflaw-backend.onrender.com/api/articles?limit=3"
+        "https://api.voiceoflaws.com/api/articles?limit=3",
       );
       setArticles(response.data);
     } catch (error) {
@@ -708,7 +708,7 @@ const Home = () => {
                       >
                         <span>
                           {new Date(
-                            article.publishedAt || article.createdAt
+                            article.publishedAt || article.createdAt,
                           ).toLocaleDateString("en-US", {
                             month: "long",
                             day: "numeric",

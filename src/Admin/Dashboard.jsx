@@ -15,8 +15,9 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import "./Style/Dashboard.css";
+import DraftingTemplateManager from "./DraftingTemplateManager";
 
-const API_BASE_URL = "https://voiceoflaw-backend.onrender.com/api";
+const API_BASE_URL = "https://api.voiceoflaws.com/api";
 
 // ============================================
 // COMPLETE API SERVICE WITH ERROR HANDLING
@@ -57,7 +58,8 @@ const api = {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`
+          errorData.message ||
+            `HTTP ${response.status}: ${response.statusText}`,
         );
       }
 
@@ -127,19 +129,19 @@ const api = {
 
   // Books
   books: {
-    getAll: () => api.fetchWithAuth("/books"),
+    getAll: () => api.fetchWithAuth("/v1/admin/library"),
     create: (formData) =>
-      api.fetchWithAuth("/books", {
+      api.fetchWithAuth("/v1/admin/library", {
         method: "POST",
         body: formData,
       }),
     update: (id, formData) =>
-      api.fetchWithAuth(`/books/${id}`, {
+      api.fetchWithAuth(`/v1/admin/library/${id}`, {
         method: "PUT",
         body: formData,
       }),
     delete: (id) =>
-      api.fetchWithAuth(`/books/${id}`, {
+      api.fetchWithAuth(`/v1/admin/library/${id}`, {
         method: "DELETE",
       }),
   },
@@ -647,9 +649,9 @@ const Dashboard = () => {
       setMoreAboutCards(Array.isArray(cardsRes.data) ? cardsRes.data : []);
       setLatestUpdates(Array.isArray(updatesRes.data) ? updatesRes.data : []);
       setAnnouncements(
-        Array.isArray(announcementsRes.data) ? announcementsRes.data : []
+        Array.isArray(announcementsRes.data) ? announcementsRes.data : [],
       );
-      setBooks(Array.isArray(booksRes.data?.data) ? booksRes.data.data : []);
+      setBooks(Array.isArray(booksRes.data?.books) ? booksRes.data.books : []);
       setStats(statsRes.data || {});
     } catch (error) {
       console.error("Load data error:", error);
@@ -740,8 +742,13 @@ const Dashboard = () => {
             dataPayload.append(key, formData[key]);
           }
         });
-        if (imageFile) dataPayload.append("image", imageFile);
-        if (pdfFile) dataPayload.append("pdfFile", pdfFile);
+        if (modalType === "book") {
+          if (imageFile) dataPayload.append("coverImage", imageFile);
+          if (pdfFile) dataPayload.append("bookFile", pdfFile);
+        } else {
+          if (imageFile) dataPayload.append("image", imageFile);
+          if (pdfFile) dataPayload.append("pdfFile", pdfFile);
+        }
       } else {
         dataPayload = formData;
       }
@@ -758,13 +765,13 @@ const Dashboard = () => {
           case "latestUpdate":
             response = await api.latestUpdates.update(
               editingItem._id,
-              dataPayload
+              dataPayload,
             );
             break;
           case "announcement":
             response = await api.announcements.update(
               editingItem._id,
-              dataPayload
+              dataPayload,
             );
             break;
         }
@@ -785,32 +792,32 @@ const Dashboard = () => {
         }
       }
 
-      const updatedItem = response.data || response;
+      const updatedItem = response.book || response.data?.book || response.data || response;
 
       // Update local state
       if (modalType === "book") {
         setBooks((prev) =>
           editingItem
             ? prev.map((i) => (i._id === editingItem._id ? updatedItem : i))
-            : [...prev, updatedItem]
+            : [...prev, updatedItem],
         );
       } else if (modalType === "moreAbout") {
         setMoreAboutCards((prev) =>
           editingItem
             ? prev.map((i) => (i._id === editingItem._id ? updatedItem : i))
-            : [...prev, updatedItem]
+            : [...prev, updatedItem],
         );
       } else if (modalType === "latestUpdate") {
         setLatestUpdates((prev) =>
           editingItem
             ? prev.map((i) => (i._id === editingItem._id ? updatedItem : i))
-            : [...prev, updatedItem]
+            : [...prev, updatedItem],
         );
       } else if (modalType === "announcement") {
         setAnnouncements((prev) =>
           editingItem
             ? prev.map((i) => (i._id === editingItem._id ? updatedItem : i))
-            : [...prev, updatedItem]
+            : [...prev, updatedItem],
         );
       }
 
@@ -881,6 +888,7 @@ const Dashboard = () => {
             {[
               { id: "dashboard", label: "Dashboard", icon: FaChartBar },
               { id: "books", label: "Library Books", icon: FaBook },
+              { id: "draftTemplates", label: "Drafting Templates", icon: FaFileAlt },
               { id: "moreAbout", label: "More About Cards", icon: FaBook },
               { id: "updates", label: "Latest Updates", icon: FaFileAlt },
               { id: "announcements", label: "Announcements", icon: FaBell },
@@ -1055,6 +1063,8 @@ const Dashboard = () => {
                   )}
                 </div>
               )}
+
+              {activeTab === "draftTemplates" && <DraftingTemplateManager />}
 
               {activeTab === "moreAbout" && (
                 <div className="space-y-6">
@@ -1268,7 +1278,7 @@ const Dashboard = () => {
                               >
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                   {new Date(
-                                    announcement.date
+                                    announcement.date,
                                   ).toLocaleDateString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -1292,8 +1302,8 @@ const Dashboard = () => {
                                       announcement.priority === "high"
                                         ? "bg-red-100 text-red-800"
                                         : announcement.priority === "medium"
-                                        ? "bg-yellow-100 text-yellow-800"
-                                        : "bg-gray-100 text-gray-800"
+                                          ? "bg-yellow-100 text-yellow-800"
+                                          : "bg-gray-100 text-gray-800"
                                     }`}
                                   >
                                     {announcement.priority}
@@ -1313,7 +1323,7 @@ const Dashboard = () => {
                                       onClick={() =>
                                         handleDelete(
                                           "announcement",
-                                          announcement._id
+                                          announcement._id,
                                         )
                                       }
                                       className="text-red-600 hover:text-red-900"

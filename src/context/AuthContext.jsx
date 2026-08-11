@@ -26,7 +26,15 @@ export function AuthProvider({ children }) {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
-        if (!res.ok) throw new Error("Session is no longer valid");
+        // FIX: only a genuine 401 means the token itself is invalid/expired.
+        // Anything else (backend redeploying, network blip, 500, etc.) is a
+        // temporary problem, not a reason to log the user out.
+        if (res.status === 401) {
+          throw { isAuthError: true };
+        }
+        if (!res.ok) {
+          throw { isAuthError: false };
+        }
         return res.json();
       })
       .then((data) => {
@@ -34,13 +42,16 @@ export function AuthProvider({ children }) {
           setUser({ ...data.user, token });
         }
       })
-      .catch(() => {
-        if (!cancelled) {
+      .catch((err) => {
+        if (cancelled) return;
+        if (err && err.isAuthError) {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           localStorage.removeItem("voicelaw_user");
           setUser(null);
         }
+        // Non-auth failures: keep the cached user (already loaded from
+        // localStorage above) logged in and just try again next time.
       });
 
     return () => {

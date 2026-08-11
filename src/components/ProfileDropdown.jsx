@@ -10,7 +10,7 @@ const ProfileDropdown = () => {
   const dropdownRef = useRef(null);
 
   const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "https://voiceoflaw-backend.onrender.com";
+    import.meta.env.VITE_API_URL || "https://api.voiceoflaws.com";
 
   const getProfilePictureUrl = () => {
     if (!user?.profilePicture) {

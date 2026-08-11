@@ -12,7 +12,7 @@ export default defineConfig({
     ],
     proxy: {
       "/api": {
-        target: "https://voiceoflaw-backend.onrender.com/api",
+        target: "https://api.voiceoflaws.com/api",
         changeOrigin: true,
       },
     },

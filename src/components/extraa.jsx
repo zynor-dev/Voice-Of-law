@@ -9,7 +9,7 @@ import {
 
 const ProfileCard = ({ userData }) => {
   const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "https://voiceoflaw-backend.onrender.com";
+    import.meta.env.VITE_API_URL || "https://api.voiceoflaws.com";
 
   // Get profile picture URL
   const getProfilePictureUrl = () => {

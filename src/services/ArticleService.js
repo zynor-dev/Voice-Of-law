@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const BACKEND_API =
-  import.meta.env.VITE_API_URL || "https://voiceoflaw-backend.onrender.com/api";
+  import.meta.env.VITE_API_URL || "https://api.voiceoflaws.com/api";
 
 // Axios instance with auth token
 const api = axios.create({
@@ -20,7 +20,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Response interceptor for error handling
@@ -29,7 +29,7 @@ api.interceptors.response.use(
   (error) => {
     console.error("API Error:", error.response?.data || error.message);
     return Promise.reject(error);
-  }
+  },
 );
 
 // Placeholder image for missing article images
@@ -48,7 +48,7 @@ class ArticleService {
     query = "",
     page = 1,
     limit = 12,
-    category = "All"
+    category = "All",
   ) {
     try {
       console.log("🔍 Fetching articles:", { query, page, limit, category });
@@ -85,7 +85,7 @@ class ArticleService {
     } catch (error) {
       console.error(
         "❌ Fetch articles error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       return [];
     }
@@ -129,7 +129,7 @@ class ArticleService {
     } catch (error) {
       console.error(
         "❌ Get article error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       return null;
     }
@@ -194,7 +194,7 @@ class ArticleService {
       .filter(
         (article) =>
           article.id !== currentArticle.id &&
-          article.category === currentArticle.category
+          article.category === currentArticle.category,
       )
       .slice(0, limit);
   }
@@ -215,7 +215,7 @@ class ArticleService {
     } catch (error) {
       console.error(
         "❌ Create article error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }
@@ -238,7 +238,7 @@ class ArticleService {
     } catch (error) {
       console.error(
         "❌ Update article error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }
@@ -260,7 +260,7 @@ class ArticleService {
     } catch (error) {
       console.error(
         "❌ Delete article error:",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }

@@ -24,6 +24,7 @@ import JotformAgent from "./User/JotformAgent";
 
 // Auth Pages
 import EnhancedAuthPage from "./pages/EnhancedAuthPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import { AuthProvider } from "./context/AuthContext";
 
 // User Panel
@@ -63,6 +64,10 @@ const MainLayout = () => {
           />
 
           {/* Auth Routes */}
+          <Route
+            path="/auth/forgot-password"
+            element={<ForgotPasswordPage />}
+          />
           <Route path="/auth/:mode" element={<EnhancedAuthPage />} />
 
           {/* Other Public Routes */}
